@@ -438,7 +438,7 @@ const ProtectionCivileQuizGame = () => {
             />
             
               <div>
-                <h1 style={styles.title}>لعبة الحماية المدنية</h1>
+                <h1 style={styles.title}>لعبة التطوع في خدمة الحماية المدنية</h1>
                 <p style={styles.subtitle}>وقاية • نجدة • إنقاذ</p>
               </div>
             </div>

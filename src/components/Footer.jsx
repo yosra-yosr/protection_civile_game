@@ -9,7 +9,7 @@ const Footer = () => {
         <AntFooter style={styles.footer}>
             <div style={styles.footerContent}>
                 <p style={styles.copyright}>
-                    &copy; 2025 طُوّر بـ <HeartOutlined style={styles.heartIcon} /> بواسطة يسرى الزوق. جميع الحقوق محفوظة.
+                    &copy; 2025 طُوّر بـ <HeartOutlined style={styles.heartIcon} /> بواسطة المتطوعة يسرى الزوق في خدمة الحماية المدنية ببن عروس. جميع الحقوق محفوظة.
                 </p>
             </div>
         </AntFooter>
