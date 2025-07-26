@@ -6,7 +6,6 @@ import {
   AimOutlined, 
   RightOutlined,
   HomeOutlined,
-  UserOutlined
 } from '@ant-design/icons';
 
 const ProtectionCivileQuizGame = () => {
@@ -470,7 +469,7 @@ const ProtectionCivileQuizGame = () => {
                     cursor: tempPlayerName.trim() ? 'pointer' : 'not-allowed'
                   }}
                 >
-                  <UserOutlined />
+                 
                   ابدأ
                 </button>
               </div>
