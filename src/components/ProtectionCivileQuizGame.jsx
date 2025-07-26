@@ -764,6 +764,7 @@ const ProtectionCivileQuizGame = () => {
           </div>
         </div>
       </div>
+      
     );
   }
 };
