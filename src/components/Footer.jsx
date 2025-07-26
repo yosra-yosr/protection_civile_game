@@ -18,13 +18,15 @@ const Footer = () => {
 
 const styles = {
     footer: {
+        position: 'fixed', // Fixe le footer
+        bottom: 0,        // Positionné en bas
+        left: 0,          // Aligné à gauche
+        right: 0,         // Aligné à droite
         background: 'linear-gradient(135deg, #0f172a, #1e3a8a)', // Dégradé de fond
         color: 'white',
         textAlign: 'center',
         padding: '20px 0',
-        position: 'relative',
-        bottom: 0,
-        width: '100%',
+        zIndex: 1000,     // Assurez-vous qu'il est au-dessus des autres éléments
     },
     footerContent: {
         maxWidth: '1200px',
