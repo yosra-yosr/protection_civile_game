@@ -18,7 +18,7 @@ const Footer = () => {
 
 const styles = {
     footer: {
-        position: 'fixed', // Fixe le footer
+        position: 'ralative', // Fixe le footer
         bottom: 0,        // Positionné en bas
         left: 0,          // Aligné à gauche
         right: 0,         // Aligné à droite
