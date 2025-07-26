@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { 
   TrophyOutlined, 
   StarOutlined, 
@@ -188,26 +189,36 @@ const ProtectionCivileQuizGame = () => {
     }
   }, [timeLeft, showAnswer, currentScreen]);
 
-  const getCurrentQuestion = () => {
-    if (!selectedCategory) return null;
-    return questionCategories[selectedCategory].questions[currentQuestionIndex];
-  };
+ const getCurrentQuestion = () => {
+  if (!selectedCategory) return null;
+  return questionCategories[selectedCategory].questions[currentQuestionIndex];
+};
 
-  const handleAnswer = (answerIndex) => {
-    const question = getCurrentQuestion();
-    setSelectedAnswer(answerIndex);
-    setShowAnswer(true);
-    
-    if (answerIndex === question.correct) {
-      const timeBonus = Math.floor(timeLeft / 3);
-      setScore(score + 10 + timeBonus);
-      
-      // Check for badges
-      if (score >= 100 && !badges.includes('نجم مبتدئ')) {
-        setBadges([...badges, 'نجم مبتدئ']);
-      }
+const handleAnswer = useCallback((answerIndex) => {
+  const question = getCurrentQuestion();
+  setSelectedAnswer(answerIndex);
+  setShowAnswer(true);
+
+  if (answerIndex === question.correct) {
+    const timeBonus = Math.floor(timeLeft / 3);
+    const newScore = score + 10 + timeBonus;
+    setScore(newScore);
+
+    if (newScore >= 100 && !badges.includes('نجم مبتدئ')) {
+      setBadges((prev) => [...prev, 'نجم مبتدئ']);
     }
-  };
+  }
+}, [timeLeft, score, badges, selectedCategory, currentQuestionIndex]);
+
+// ✅ Correction du useEffect (ligne 85)
+useEffect(() => {
+  if (currentScreen === 'quiz' && timeLeft > 0 && !showAnswer) {
+    const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  } else if (timeLeft === 0 && !showAnswer) {
+    handleAnswer(null);
+  }
+}, [timeLeft, showAnswer, currentScreen, handleAnswer]);
 
   const nextQuestion = () => {
     const categoryQuestions = questionCategories[selectedCategory].questions;
