@@ -420,56 +420,245 @@ const ProtectionCivileQuizGame = () => {
   };
 
   // Home Screen
-  if (currentScreen === 'home') {
+ <div style={{
+                position: 'relative',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '16px',
+                padding: window.innerWidth <= 768 ? '8px' : '12px',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              }}>
+                <img 
+                  src={`${process.env.PUBLIC_URL}/Écusson_protection_civile,_Tunisie.png`}
+                  alt="Protection Civile Tunisie" 
+                  style={{
+                      width: window.innerWidth <= 768 ? '60px' : '80px',
+                      height: 'auto',
+                      filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))'
+                  }} 
+                />
+              </div>
+ if (currentScreen === 'home') {
     return (
       <div style={styles.container}>
         <div style={styles.maxWidth}>
-          {/* Header */}
-          <div style={styles.header}>
-            <div style={styles.headerFlex}>
-              <img 
-                src={`${process.env.PUBLIC_URL}/Écusson_protection_civile,_Tunisie.png`}
-                alt="Description de l'image" 
-                style={{
-                    width: '100px',  // Largeur souhaitée
-                    height: 'auto',   // Hauteur automatique pour conserver le ratio
-                    marginLeft: '16px'
-                }} 
-            />
+          {/* Enhanced Header with Gradient Background */}
+          <div style={{
+            ...styles.header,
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            marginBottom: '32px',
+            position: 'relative',
+            overflow: 'hidden',
+            padding: window.innerWidth <= 768 ? '24px 20px' : '32px'
+          }}>
+            {/* Decorative elements */}
+            <div style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              width: '100px',
+              height: '100px',
+              background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+              borderRadius: '50%'
+            }}></div>
+            <div style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '10px',
+              width: '80px',
+              height: '80px',
+              background: 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+              borderRadius: '50%'
+            }}></div>
             
-              <div>
-                <h1 style={styles.title}>لعبة التطوع في خدمة الحماية المدنية</h1>
-                <p style={styles.subtitle}>وقاية • نجدة • إنقاذ</p>
+            <div style={styles.headerFlex}>
+              <div style={{
+                position: 'relative',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: window.innerWidth <= 768 ? '12px' : '16px',
+                backdropFilter: 'blur(15px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)'
+              }}>
+                <img 
+                  src={`${process.env.PUBLIC_URL}/Écusson_protection_civile,_Tunisie.png`}
+                  alt="Protection Civile Tunisie" 
+                  style={{
+                      width: window.innerWidth <= 768 ? '70px' : '90px',
+                      height: 'auto',
+                      filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4))'
+                  }} 
+                />
+              </div>
+              
+              <div style={{flex: 1, textAlign: 'center', position: 'relative', zIndex: 2}}>
+                <h1 style={{
+                  ...styles.title,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+                  marginBottom: '16px',
+                  fontSize: window.innerWidth <= 768 ? '1.8rem' : window.innerWidth <= 480 ? '1.5rem' : '2.5rem',
+                  fontWeight: '800',
+                  lineHeight: '1.2'
+                }}>لعبة التطوع في خدمة الحماية المدنية</h1>
+                
+                {/* Enhanced Professional Slogan */}
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%)',
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: '20px',
+                  padding: window.innerWidth <= 768 ? '16px 24px' : '20px 32px',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  boxShadow: '0 8px 24px rgba(16, 185, 129, 0.2)',
+                  marginTop: '20px',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Subtle background decoration */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    bottom: '0',
+                    background: 'linear-gradient(45deg, rgba(16, 185, 129, 0.05) 0%, rgba(52, 211, 153, 0.05) 100%)',
+                    opacity: 0.7
+                  }}></div>
+                  
+                  <p style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontSize: window.innerWidth <= 768 ? '1.3rem' : '1.6rem',
+                    fontWeight: '700',
+                    letterSpacing: window.innerWidth <= 768 ? '3px' : '4px',
+                    textAlign: 'center',
+                    margin: '0',
+                    position: 'relative',
+                    zIndex: 1,
+                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  }}>وقاية • نجدة • إنقاذ</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Player Name Input */}
+          {/* Enhanced Player Name Input */}
           {!playerName && (
-            <div style={styles.card}>
-              <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: '24px'}}>أدخل اسمك للبدء</h3>
-              <div style={{display: 'flex', gap: '12px'}}>
+            <div style={{
+              ...styles.card,
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.2)',
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: '24px'
+            }}>
+              {/* Decorative background pattern */}
+              <div style={{
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                right: '0',
+                bottom: '0',
+                background: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+                opacity: 0.7
+              }}></div>
+              
+              <h3 style={{
+                fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.9rem', 
+                fontWeight: 'bold', 
+                background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textAlign: 'center', 
+                marginBottom: '28px',
+                textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+                position: 'relative',
+                zIndex: 1
+              }}>أدخل اسمك للبدء</h3>
+              
+              <div style={{
+                display: 'flex', 
+                gap: '16px', 
+                alignItems: 'stretch', 
+                flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                position: 'relative',
+                zIndex: 1
+              }}>
                 <input
                   type="text"
                   placeholder="اسم المتطوع..."
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    flex: 1,
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '16px',
+                    padding: window.innerWidth <= 768 ? '16px 20px' : '18px 24px',
+                    fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.2rem',
+                    color: 'white',
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease',
+                    outline: 'none',
+                    width: window.innerWidth <= 768 ? '100%' : 'auto'
+                  }}
                   value={tempPlayerName}
                   onChange={(e) => setTempPlayerName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.6)';
+                    e.target.style.boxShadow = '0 0 24px rgba(59, 130, 246, 0.4)';
+                    e.target.style.transform = 'scale(1.02)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    e.target.style.boxShadow = 'none';
+                    e.target.style.transform = 'scale(1)';
+                  }}
                 />
                 <button
                   onClick={handleNameSubmit}
                   disabled={!tempPlayerName.trim()}
                   style={{
-                    ...styles.button,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    opacity: tempPlayerName.trim() ? 1 : 0.6,
-                    cursor: tempPlayerName.trim() ? 'pointer' : 'not-allowed'
+                    background: tempPlayerName.trim() 
+                      ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
+                      : 'rgba(107, 114, 128, 0.5)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '16px',
+                    padding: window.innerWidth <= 768 ? '16px 24px' : '18px 28px',
+                    fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.2rem',
+                    fontWeight: 'bold',
+                    cursor: tempPlayerName.trim() ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.3s ease',
+                    boxShadow: tempPlayerName.trim() 
+                      ? '0 8px 20px rgba(59, 130, 246, 0.4)' 
+                      : 'none',
+                    transform: 'scale(1)',
+                    minWidth: window.innerWidth <= 768 ? '100%' : '120px',
+                    width: window.innerWidth <= 768 ? '100%' : 'auto'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (tempPlayerName.trim()) {
+                      e.target.style.transform = 'scale(1.05)';
+                      e.target.style.boxShadow = '0 12px 28px rgba(59, 130, 246, 0.5)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = tempPlayerName.trim() 
+                      ? '0 8px 20px rgba(59, 130, 246, 0.4)' 
+                      : 'none';
                   }}
                 >
-                 
                   ابدأ
                 </button>
               </div>
@@ -478,71 +667,311 @@ const ProtectionCivileQuizGame = () => {
 
           {playerName && (
             <>
-              {/* Welcome Message */}
-              <div style={styles.welcomeCard}>
-                <p style={{fontSize: '1.25rem', marginBottom: '8px'}}>
-                  مرحبا <span style={{fontWeight: 'bold', color: '#6ee7b7'}}>{playerName}</span>! 🎖️
+              {/* Enhanced Welcome Message */}
+              <div style={{
+                ...styles.welcomeCard,
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '24px',
+                padding: window.innerWidth <= 768 ? '20px' : '28px',
+                textAlign: 'center',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Subtle background decoration */}
+                <div style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  right: '0',
+                  bottom: '0',
+                  background: 'radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+                  opacity: 0.6
+                }}></div>
+                
+                <p style={{
+                  fontSize: window.innerWidth <= 768 ? '1.3rem' : '1.6rem', 
+                  marginBottom: '16px',
+                  position: 'relative',
+                  zIndex: 1
+                }}>
+                  مرحبا <span style={{
+                    fontWeight: 'bold', 
+                    background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontSize: window.innerWidth <= 768 ? '1.4rem' : '1.7rem'
+                  }}>{playerName}</span>! 🎖️
                 </p>
-                <p style={{color: '#86efac'}}>اختر فئة الأسئلة لتبدأ التحدي</p>
+                <p style={{
+                  color: '#86efac',
+                  fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.2rem',
+                  fontWeight: '500',
+                  position: 'relative',
+                  zIndex: 1
+                }}>اختر فئة الأسئلة لتبدأ التحدي</p>
               </div>
 
-              {/* Score Display */}
-              <div style={styles.gridTwo}>
-                <div style={{...styles.card, textAlign: 'center'}}>
-                  <TrophyOutlined style={{fontSize: '3rem', color: '#fbbf24', marginBottom: '12px', textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}} />
-                  <h2 style={{fontSize: '2rem', fontWeight: 'bold', color: 'white', margin: '4px 0'}}>{score}</h2>
-                  <p style={{color: '#bfdbfe'}}>النقاط</p>
+              {/* Enhanced Score Display */}
+              <div style={{
+                ...styles.gridTwo,
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(2, 1fr)',
+                gap: window.innerWidth <= 768 ? '20px' : '28px'
+              }}>
+                <div style={{
+                  ...styles.card, 
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: '24px',
+                  padding: window.innerWidth <= 768 ? '24px' : '28px'
+                }}>
+                  {/* Background decoration */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <TrophyOutlined style={{
+                    fontSize: window.innerWidth <= 768 ? '3rem' : '4rem', 
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '20px',
+                    filter: 'drop-shadow(0 6px 12px rgba(251, 191, 36, 0.5))',
+                    position: 'relative',
+                    zIndex: 1
+                  }} />
+                  <h2 style={{
+                    fontSize: window.innerWidth <= 768 ? '2.2rem' : '2.8rem', 
+                    fontWeight: 'bold', 
+                    background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    margin: '12px 0',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>{score}</h2>
+                  <p style={{
+                    color: '#bfdbfe', 
+                    fontWeight: '600', 
+                    position: 'relative', 
+                    zIndex: 1,
+                    fontSize: window.innerWidth <= 768 ? '1rem' : '1.1rem'
+                  }}>النقاط</p>
                 </div>
-                <div style={{...styles.card, textAlign: 'center'}}>
-                  <CrownOutlined style={{fontSize: '3rem', color: '#c084fc', marginBottom: '12px', textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}} />
-                  <h2 style={{fontSize: '2rem', fontWeight: 'bold', color: 'white', margin: '4px 0'}}>{badges.length}</h2>
-                  <p style={{color: '#bfdbfe'}}>الأوسمة</p>
+                
+                <div style={{
+                  ...styles.card, 
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, rgba(192, 132, 252, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%)',
+                  border: '1px solid rgba(192, 132, 252, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: '24px',
+                  padding: window.innerWidth <= 768 ? '24px' : '28px'
+                }}>
+                  {/* Background decoration */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '10px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%)',
+                    borderRadius: '50%'
+                  }}></div>
+                  
+                  <CrownOutlined style={{
+                    fontSize: window.innerWidth <= 768 ? '3rem' : '4rem', 
+                    background: 'linear-gradient(135deg, #c084fc 0%, #a855f7 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '20px',
+                    filter: 'drop-shadow(0 6px 12px rgba(192, 132, 252, 0.5))',
+                    position: 'relative',
+                    zIndex: 1
+                  }} />
+                  <h2 style={{
+                    fontSize: window.innerWidth <= 768 ? '2.2rem' : '2.8rem', 
+                    fontWeight: 'bold', 
+                    background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    margin: '12px 0',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>{badges.length}</h2>
+                  <p style={{
+                    color: '#bfdbfe', 
+                    fontWeight: '600', 
+                    position: 'relative', 
+                    zIndex: 1,
+                    fontSize: window.innerWidth <= 768 ? '1rem' : '1.1rem'
+                  }}>الأوسمة</p>
                 </div>
               </div>
 
-              {/* Categories Grid */}
-              <div style={styles.gridThree}>
+              {/* Enhanced Categories Grid */}
+              <div style={{
+                ...styles.gridThree,
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth <= 480 ? '1fr' : window.innerWidth <= 768 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+                gap: window.innerWidth <= 768 ? '20px' : '28px'
+              }}>
                 {Object.entries(questionCategories).map(([category, data]) => (
                   <div
                     key={category}
                     onClick={() => startGame(category)}
                     style={{
                       ...styles.categoryCard,
-                      background: data.gradient
+                      background: data.gradient,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      borderRadius: '24px',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(15px)',
+                      padding: window.innerWidth <= 768 ? '20px' : '24px'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.05)';
-                      e.target.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
+                      e.currentTarget.style.transform = 'translateY(-10px) scale(1.03)';
+                      e.currentTarget.style.boxShadow = '0 28px 56px rgba(0, 0, 0, 0.4), 0 0 35px rgba(59, 130, 246, 0.3)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                      e.target.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.2)';
                     }}
                   >
-                    <div style={styles.categoryHeader}>
-                      <span style={styles.icon}>{data.icon}</span>
-                      <AimOutlined style={{fontSize: '1.5rem', opacity: 0.7}} />
+                    {/* Background decoration */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      width: '80px',
+                      height: '80px',
+                      background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
+                      borderRadius: '50%'
+                    }}></div>
+                    
+                    <div style={{
+                      ...styles.categoryHeader,
+                      position: 'relative',
+                      zIndex: 1,
+                      marginBottom: '20px'
+                    }}>
+                      <span style={{
+                        ...styles.icon,
+                        fontSize: window.innerWidth <= 768 ? '2.2rem' : '2.8rem',
+                        filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4))'
+                      }}>{data.icon}</span>
+                      <AimOutlined style={{
+                        fontSize: window.innerWidth <= 768 ? '1.6rem' : '2rem', 
+                        opacity: 0.8,
+                        color: 'rgba(255, 255, 255, 0.9)'
+                      }} />
                     </div>
-                    <h4 style={styles.categoryTitle}>{category}</h4>
-                    <p style={{color: 'rgba(255, 255, 255, 0.8)'}}>{data.questions.length} سؤال</p>
+                    
+                    <h4 style={{
+                      ...styles.categoryTitle,
+                      fontSize: window.innerWidth <= 768 ? '1.2rem' : '1.4rem',
+                      fontWeight: 'bold',
+                      color: 'white',
+                      textShadow: '0 3px 6px rgba(0, 0, 0, 0.5)',
+                      marginBottom: '12px',
+                      position: 'relative',
+                      zIndex: 1
+                    }}>{category}</h4>
+                    
+                    <p style={{
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      fontWeight: '500',
+                      position: 'relative',
+                      zIndex: 1,
+                      fontSize: window.innerWidth <= 768 ? '1rem' : '1.1rem'
+                    }}>{data.questions.length} سؤال</p>
                   </div>
                 ))}
               </div>
 
-              {/* Badges Display */}
+              {/* Enhanced Badges Display */}
               {badges.length > 0 && (
-                <div style={styles.card}>
-                  <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: '16px'}}>🏆 الأوسمة المكتسبة</h3>
-                  <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px'}}>
+                <div style={{
+                  ...styles.card,
+                  background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
+                  border: '1px solid rgba(234, 179, 8, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: '24px',
+                  padding: window.innerWidth <= 768 ? '24px' : '28px'
+                }}>
+                  {/* Background decoration */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    bottom: '0',
+                    background: 'radial-gradient(circle at 70% 30%, rgba(234, 179, 8, 0.1) 0%, transparent 50%)',
+                    opacity: 0.7
+                  }}></div>
+                  
+                  <h3 style={{
+                    fontSize: window.innerWidth <= 768 ? '1.6rem' : '2rem', 
+                    fontWeight: 'bold', 
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textAlign: 'center', 
+                    marginBottom: '24px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>🏆 الأوسمة المكتسبة</h3>
+                  
+                  <div style={{
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    justifyContent: 'center', 
+                    gap: window.innerWidth <= 768 ? '16px' : '20px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
                     {badges.map((badge, index) => (
                       <div key={index} style={{
-                        background: 'rgba(234, 179, 8, 0.3)',
-                        backdropFilter: 'blur(8px)',
-                        borderRadius: '12px',
-                        padding: '12px',
-                        border: '1px solid rgba(234, 179, 8, 0.3)'
-                      }}>
-                        <span style={{color: '#fde047', fontWeight: 'bold'}}>⭐ {badge}</span>
+                        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%)',
+                        backdropFilter: 'blur(15px)',
+                        borderRadius: '20px',
+                        padding: window.innerWidth <= 768 ? '14px 20px' : '18px 24px',
+                        border: '1px solid rgba(234, 179, 8, 0.4)',
+                        boxShadow: '0 10px 25px rgba(234, 179, 8, 0.25)',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.08)';
+                        e.target.style.boxShadow = '0 15px 30px rgba(234, 179, 8, 0.35)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.boxShadow = '0 10px 25px rgba(234, 179, 8, 0.25)';
+                      }}
+                      >
+                        <span style={{
+                          background: 'linear-gradient(135deg, #fde047 0%, #facc15 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          fontWeight: 'bold',
+                          fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.2rem'
+                        }}>⭐ {badge}</span>
                       </div>
                     ))}
                   </div>
@@ -551,6 +980,66 @@ const ProtectionCivileQuizGame = () => {
             </>
           )}
         </div>
+
+        {/* Enhanced CSS with better responsive design */}
+        <style jsx>{`
+          * {
+            box-sizing: border-box;
+          }
+          
+          /* Subtle hover animations for slogan words */
+          div:hover {
+            animation: subtle-glow 0.3s ease;
+          }
+          
+          @keyframes subtle-glow {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.1); }
+            100% { filter: brightness(1); }
+          }
+          
+          /* Enhanced responsive design */
+          @media (max-width: 768px) {
+            .container {
+              padding: 16px;
+            }
+            
+            /* Adjust slogan layout for mobile */
+            .slogan-container {
+              flex-direction: column;
+              gap: 12px !important;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .container {
+              padding: 12px;
+            }
+            
+            /* Stack slogan vertically on very small screens */
+            .slogan-container {
+              flex-direction: column;
+              align-items: center;
+              gap: 8px !important;
+            }
+          }
+          
+          /* Smooth transitions for all interactive elements */
+          input, button, div[style*="cursor: pointer"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+          
+          /* Enhanced focus styles for accessibility */
+          input:focus {
+            outline: 2px solid rgba(59, 130, 246, 0.5);
+            outline-offset: 2px;
+          }
+          
+          button:focus {
+            outline: 2px solid rgba(59, 130, 246, 0.5);
+            outline-offset: 2px;
+          }
+        `}</style>
       </div>
     );
   }
