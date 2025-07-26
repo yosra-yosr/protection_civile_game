@@ -4,7 +4,6 @@ import {
   ClockCircleOutlined, 
   CrownOutlined, 
   AimOutlined, 
-  SafetyCertificateOutlined,
   RightOutlined,
   HomeOutlined,
   UserOutlined
@@ -429,7 +428,16 @@ const ProtectionCivileQuizGame = () => {
           {/* Header */}
           <div style={styles.header}>
             <div style={styles.headerFlex}>
-              <SafetyCertificateOutlined style={{...styles.icon, color: '#f87171', marginLeft: '16px'}} />
+              <img 
+                src={`${process.env.PUBLIC_URL}/Écusson_protection_civile,_Tunisie.png`}
+                alt="Description de l'image" 
+                style={{
+                    width: '100px',  // Largeur souhaitée
+                    height: 'auto',   // Hauteur automatique pour conserver le ratio
+                    marginLeft: '16px'
+                }} 
+            />
+            
               <div>
                 <h1 style={styles.title}>لعبة الحماية المدنية</h1>
                 <p style={styles.subtitle}>وقاية • نجدة • إنقاذ</p>
