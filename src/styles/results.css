@@ -61,9 +61,9 @@
   color: #fbbf24;
 }
 
-.results-stat-number.percentage {
+/* .results-stat-number.percentage { */
   /* Couleur dynamique selon la performance */
-}
+/* } */
 
 .results-stat-label {
   color: #bfdbfe;

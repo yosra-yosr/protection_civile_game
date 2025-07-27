@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   TrophyOutlined, 
-  ClockCircleOutlined, 
-  CrownOutlined, 
+  ClockCircleOutlined,  
   AimOutlined, 
   RightOutlined,
   HomeOutlined,
@@ -178,7 +177,7 @@ const ProtectionCivileQuizGame = () => {
               </div>
 
               {/* Score Display */}
-              <div className={`grid-two ${window.innerWidth <= 768 ? 'mobile' : ''}`}>
+              {/* <div className={`grid-two ${window.innerWidth <= 768 ? 'mobile' : ''}`}>
                 <div className="score-card">
                   <TrophyOutlined className="score-icon score-icon-gold" />
                   <h2 className="score-number">{score}</h2>
@@ -190,7 +189,7 @@ const ProtectionCivileQuizGame = () => {
                   <h2 className="score-number">{badges.length}</h2>
                   <p className="score-label">الأوسمة</p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Categories Grid */}
               <div className={`grid-three ${window.innerWidth <= 480 ? 'mobile-single' : window.innerWidth <= 768 ? 'mobile-double' : ''}`}>
