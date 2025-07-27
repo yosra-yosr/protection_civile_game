@@ -378,7 +378,7 @@ const ProtectionCivileQuizGame = () => {
             <div className="card" style={{marginBottom: '32px'}}>
               <div className="results-stats">
                 <div className="results-stat">
-                  <h2 className="results-stat-number score">{score}</h2>
+                  <h2 className="results-stat-number score">{score}/{totalQuestions*15}</h2>
                   <p className="results-stat-label">إجمالي النقاط</p>
                 </div>
                 <div className="results-stat">
