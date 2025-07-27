@@ -1,0 +1,326 @@
+/* styles/cards.css - Styles des cartes */
+
+.welcome-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 24px;
+  padding: 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  margin-bottom: 24px;
+}
+
+.welcome-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  opacity: 0.6;
+}
+
+.welcome-text {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-name {
+  font-weight: bold;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.7rem;
+}
+
+.welcome-subtitle {
+  color: #86efac;
+  font-size: 1.2rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+/* Score Cards */
+.score-card {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.badge-card {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.badge-card::before {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.score-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 6px 12px rgba(251, 191, 36, 0.5));
+  position: relative;
+  z-index: 1;
+}
+
+.score-icon-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.score-icon-purple {
+  background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.score-number {
+  font-size: 2.8rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 12px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.score-label {
+  color: #bfdbfe;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+}
+
+/* Category Cards */
+.category-card {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.category-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.4), 0 0 35px rgba(59, 130, 246, 0.3);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.category-icon {
+  font-size: 2.8rem;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+.category-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.category-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+}
+
+/* Badges Display */
+.badges-container {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.badges-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(234, 179, 8, 0.1) 0%, transparent 50%);
+  opacity: 0.7;
+}
+
+.badges-title {
+  font-size: 2rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.badge-item {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 18px 24px;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  box-shadow: 0 10px 25px rgba(234, 179, 8, 0.25);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.badge-item:hover {
+  transform: scale(1.08);
+  box-shadow: 0 15px 30px rgba(234, 179, 8, 0.35);
+}
+
+.badge-text {
+  background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .welcome-card,
+  .score-card,
+  .badge-card,
+  .category-card,
+  .badges-container {
+    padding: 20px;
+  }
+  
+  .welcome-text {
+    font-size: 1.3rem;
+  }
+  
+  .welcome-name {
+    font-size: 1.4rem;
+  }
+  
+  .welcome-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .score-icon {
+    font-size: 3rem;
+  }
+  
+  .score-number {
+    font-size: 2.2rem;
+  }
+  
+  .score-label {
+    font-size: 1rem;
+  }
+  
+  .category-icon {
+    font-size: 2.2rem;
+  }
+  
+  .category-title {
+    font-size: 1.2rem;
+  }
+  
+  .category-description {
+    font-size: 1rem;
+  }
+  
+  .badges-title {
+    font-size: 1.6rem;
+  }
+  
+  .badges-list {
+    gap: 16px;
+  }
+  
+  .badge-item {
+    padding: 14px 20px;
+  }
+  
+  .badge-text {
+    font-size: 1.1rem;
+  }
+}

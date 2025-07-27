@@ -1,0 +1,122 @@
+/* styles/header.css - Styles du header */
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  padding: 32px;
+}
+
+.header-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.logo-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 16px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.logo {
+  width: 90px;
+  height: auto;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+.title {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  margin-bottom: 16px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.slogan-container {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 20px 32px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slogan-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(16, 185, 129, 0.05) 0%, rgba(52, 211, 153, 0.05) 100%);
+  opacity: 0.7;
+}
+
+.slogan-text {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    padding: 24px 20px;
+  }
+  
+  .logo {
+    width: 70px;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .slogan-container {
+    padding: 16px 24px;
+  }
+  
+  .slogan-text {
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .slogan-text {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+}
