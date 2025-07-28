@@ -1,0 +1,316 @@
+/* Styles pour les questions avec images - Version améliorée */
+
+.question-image-container {
+  width: 100%;
+  max-width: 400px; /* Réduit pour les images verticales */
+  margin: 24px auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  padding: 12px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.question-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.15), 
+    rgba(147, 51, 234, 0.15),
+    rgba(236, 72, 153, 0.1)
+  );
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.question-image-container::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #10b981);
+  border-radius: 22px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.question-image-container:hover::after {
+  opacity: 0.7;
+}
+
+.question-image {
+  width: 100%;
+  height: auto;
+  max-height: 500px; /* Augmenté pour les images verticales */
+  min-height: 200px;
+  object-fit: contain; /* Changé de cover à contain pour préserver l'aspect ratio */
+  border-radius: 16px;
+  display: block;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 2;
+  background: #f8fafc; /* Background pour les images avec transparence */
+}
+
+.question-image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+}
+
+/* Style spécial pour les images verticales */
+.question-image.vertical {
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Conteneur adaptatif pour images verticales */
+.question-image-container.vertical {
+  max-width: 350px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Placeholder pour les images manquantes - amélioré */
+.question-image-placeholder {
+  width: 100%;
+  height: 250px;
+  background: linear-gradient(135deg, #f1f5f9, #cbd5e1, #e2e8f0);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #64748b;
+  font-size: 1.1rem;
+  text-align: center;
+  border: 3px dashed #cbd5e1;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-image-placeholder::before {
+  content: '🖼️';
+  font-size: 4rem;
+  margin-bottom: 16px;
+  opacity: 0.7;
+  animation: float 3s ease-in-out infinite;
+}
+
+.question-image-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Image avec effet de chargement amélioré */
+.question-image[data-loading="true"] {
+  opacity: 0.8;
+  background: linear-gradient(90deg, 
+    #f0f0f0 25%, 
+    rgba(255,255,255,0.8) 37%, 
+    #f0f0f0 63%
+  );
+  background-size: 400% 100%;
+  animation: loading 1.6s ease infinite;
+  border: 2px solid #e5e7eb;
+}
+
+@keyframes loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: -100% 50%; }
+}
+
+/* Indicateur pour les questions avec images - amélioré */
+.question-with-image-indicator {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.15));
+  color: #3b82f6;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-right: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.question-with-image-indicator::before {
+  content: '📷';
+  margin-left: 6px;
+  font-size: 1rem;
+}
+
+/* Zoom modal pour les images */
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+}
+
+.image-zoom-container {
+  max-width: 90vw;
+  max-height: 90vh;
+  position: relative;
+}
+
+.image-zoom {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.image-zoom-close {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #374151;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.image-zoom-close:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+/* Adaptations mobiles améliorées */
+@media (max-width: 768px) {
+  .question-image-container {
+    max-width: 100%;
+    margin: 20px auto;
+    padding: 10px;
+  }
+  
+  .question-image-container.vertical {
+    max-width: 280px;
+  }
+  
+  .question-image {
+    max-height: 400px;
+    border-radius: 12px;
+  }
+  
+  .question-image.vertical {
+    max-width: 260px;
+  }
+  
+  .question-image-placeholder {
+    height: 200px;
+    font-size: 1rem;
+  }
+  
+  .question-image-placeholder::before {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .question-image-container {
+    margin: 16px auto;
+    padding: 8px;
+  }
+  
+  .question-image-container.vertical {
+    max-width: 250px;
+  }
+  
+  .question-image {
+    max-height: 350px;
+    border-radius: 10px;
+  }
+  
+  .question-image.vertical {
+    max-width: 230px;
+  }
+  
+  .question-image-placeholder {
+    height: 180px;
+    font-size: 0.9rem;
+  }
+  
+  .question-image-placeholder::before {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .question-with-image-indicator {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+  
+  .image-zoom-container {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+}
+
+/* Animation d'apparition pour les images */
+.question-image-container {
+  animation: imageSlideIn 0.6s ease-out;
+}
+
+@keyframes imageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Style pour les images en cours de chargement */
+.question-image.loading {
+  filter: blur(2px);
+  transition: filter 0.3s ease;
+}
+
+.question-image.loaded {
+  filter: blur(0);
+}
