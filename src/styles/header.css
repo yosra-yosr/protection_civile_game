@@ -1,15 +1,15 @@
-/* styles/header.css - En-tête amélioré */
+/* styles/header.css - Version ultra-optimisée pour performance */
 
 .header {
   position: relative;
   text-align: center;
-  padding: 40px 20px;
-  margin-bottom: 40px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(25px);
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 32px 20px;
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px); /* Drastiquement réduit */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Simplifié */
   overflow: hidden;
 }
 
@@ -19,69 +19,48 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
+  height: 3px;
   background: linear-gradient(90deg, 
-  #16a34a 15%, 
-  #dc2626 50%, 
-  #ea580c 75%
-    
+    #16a34a 25%, 
+    #dc2626 50%, 
+    #ea580c 75%
   );
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
-.header::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-  animation: headerRotate 20s linear infinite;
-  pointer-events: none;
-}
+/* Suppression complète des animations de fond */
 
-/* @keyframes headerRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-} */
-
+/* Cercles décoratifs ultra-simplifiés - suppression des animations */
 .decorative-circle {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.15;
-  /* animation: float 6s ease-in-out infinite; */
+  opacity: 0.08; /* Très réduit */
   pointer-events: none;
 }
 
 .decorative-circle-blue {
-  width: 120px;
-  height: 120px;
+  width: 60px; /* Drastiquement réduit */
+  height: 60px;
   background: radial-gradient(circle, #3b82f6, transparent);
-  top: -30px;
-  right: -30px;
-  /* animation-delay: 0s; */
+  top: -15px;
+  right: -15px;
 }
 
 .decorative-circle-green {
-  width: 80px;
-  height: 80px;
+  width: 40px; /* Drastiquement réduit */
+  height: 40px;
   background: radial-gradient(circle, #10b981, transparent);
-  bottom: -20px;
-  left: -20px;
-  animation-delay: 3s;
+  bottom: -10px;
+  left: -10px;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-20px) scale(1.1); }
-}
+/* Suppression complète de toutes les animations float */
 
 .header-flex {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 24px;
   position: relative;
   z-index: 2;
 }
@@ -93,76 +72,55 @@
   justify-content: center;
 }
 
+/* Suppression de l'animation logo pulse - remplacé par effet statique simple */
 .logo-container::before {
   content: '';
   position: absolute;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgba(220, 38, 38, 0.2), transparent);
+  width: 70px; /* Réduit */
+  height: 70px;
+  background: radial-gradient(circle, rgba(220, 38, 38, 0.08), transparent); /* Très réduit */
   border-radius: 50%;
-  animation: logoPulse 3s ease-in-out infinite;
   z-index: -1;
 }
 
-@keyframes logoPulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-}
+/* Suppression de toutes les animations hover */
 
 .logo {
-  width: 90px;
-  height: 90px;
+  width: 70px; /* Réduit */
+  height: 70px;
   object-fit: contain;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s ease;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2); /* Simplifié */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Simplifié */
+  transition: transform 0.2s ease; /* Très simplifié */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px); /* Très réduit */
 }
 
 .logo:hover {
-  transform: scale(1.1) rotate(5deg);
-  border-color: rgba(220, 38, 38, 0.6);
-  box-shadow: 0 20px 45px rgba(220, 38, 38, 0.3);
+  transform: scale(1.02); /* Très réduit */
 }
 
 .title {
-  font-size: 2.8rem;
-  font-weight: 900;
+  font-size: 2.4rem; /* Légèrement réduit */
+  font-weight: 800;
   background: linear-gradient(135deg, 
     #ffffff 0%, 
-    #f1f5f9 30%, 
-    #e2e8f0 70%, 
-    #cbd5e1 100%
-  );
+    #e2e8f0 100%
+  ); /* Simplifié */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-align: center;
   margin: 0;
-  text-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduit */
   position: relative;
   line-height: 1.2;
-  letter-spacing: -0.02em;
 }
-
-/* .title::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 4px;
-  background: linear-gradient(90deg, #dc2626, #16a34a, #0ea5e9);
-  border-radius: 2px;
-  opacity: 0.7;
-} */
 
 .slogan-container {
   position: relative;
-  margin-top: 20px;
+  margin-top: 16px;
   display: inline-block;
 }
 
@@ -173,133 +131,97 @@
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: linear-gradient(  
-  #dc2626 , 
-  #ea580c 
-  );
-  opacity: 0.75;
-  border-radius: 25px;
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: sloganGlow 4s ease-in-out infinite alternate;
+  background: linear-gradient(135deg, #dc2626, #ea580c);
+  opacity: 0.7;
+  border-radius: 20px;
+  backdrop-filter: blur(6px); /* Réduit */
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-@keyframes sloganGlow {
-  0% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
-  33% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.3); }
-  66% { box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
-  100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
-}
+/* Suppression complète de toutes les animations glow */
 
 .slogan-text {
   position: relative;
   z-index: 1;
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 600;
   color: white;
   margin: 0;
-  padding: 12px 32px;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: 0.05em;
+  padding: 10px 24px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Réduit */
+  letter-spacing: 0.02em;
 }
 
-/* Étoiles décoratives */
-/* .header::before {
-  content: '✦';
-  position: absolute;
-  top: 20px;
-  left: 30px;
-  color: rgba(251, 191, 36, 0.6);
-  font-size: 1.5rem;
-  animation: twinkle 2s ease-in-out infinite alternate;
-}
-
-.header::after {
-  content: '✦';
-  position: absolute;
-  bottom: 20px;
-  right: 30px;
-  color: rgba(59, 130, 246, 0.6);
-  font-size: 1.2rem;
-  animation: twinkle 2s ease-in-out infinite alternate-reverse;
-  animation-delay: 1s;
-} */
-
-/* @keyframes twinkle {
-  0% { opacity: 0.3; transform: scale(1) rotate(0deg); }
-  100% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-} */
-
-/* Responsive pour l'en-tête */
+/* Responsive ultra-optimisé */
 @media (max-width: 768px) {
   .header {
-    padding: 30px 16px;
-    margin-bottom: 32px;
+    padding: 24px 16px;
+    margin-bottom: 24px;
   }
   
   .header-flex {
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
   }
   
   .logo {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
   }
   
   .logo-container::before {
-    width: 90px;
-    height: 90px;
+    width: 60px;
+    height: 60px;
   }
   
   .title {
-    font-size: 2.2rem;
+    font-size: 2rem;
     text-align: center;
   }
   
   .slogan-text {
-    font-size: 1.2rem;
-    padding: 10px 24px;
+    font-size: 1.1rem;
+    padding: 8px 20px;
   }
   
   .decorative-circle-blue {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
   }
   
   .decorative-circle-green {
-    width: 60px;
-    height: 60px;
+    width: 35px;
+    height: 35px;
   }
 }
 
 @media (max-width: 480px) {
   .header {
-    padding: 24px 12px;
-    margin-bottom: 24px;
-    border-radius: 20px;
+    padding: 20px 12px;
+    margin-bottom: 20px;
+    border-radius: 16px;
   }
   
   .header-flex {
-    gap: 20px;
+    gap: 12px;
   }
   
   .logo {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
   
   .title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     line-height: 1.3;
   }
   
   .slogan-text {
     font-size: 1rem;
-    padding: 8px 20px;
+    padding: 6px 16px;
   }
   
   .decorative-circle {
-    display: none; /* Masquer sur très petits écrans */
+    display: none; /* Masquer complètement sur mobiles */
   }
 }

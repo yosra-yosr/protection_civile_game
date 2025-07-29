@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   TrophyOutlined, 
   ClockCircleOutlined,  
@@ -10,16 +10,118 @@ import {
   ZoomInOutlined,
   CloseOutlined
 } from '@ant-design/icons';
+
+// Lazy loading pour les données (si possible, sinon garder l'import normal)
 import { questionCategories, badges as badgesList, gameSettings } from './data.js';
 
-// Import des fichiers CSS
-import '../styles/main.css';
-import '../styles/header.css';
-import '../styles/forms.css';
-import '../styles/cards.css';
-import '../styles/quiz.css';
-import '../styles/results.css';
-import '../styles/image-quiz.css';
+// Optimisation: Combiner tous les styles en un seul import
+import '../styles/app.css'; // Fichier combiné de tous vos styles CSS
+
+// Composant de chargement léger
+const LoadingSpinner = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '200px',
+    fontSize: '1.2rem',
+    color: '#666'
+  }}>
+    جاري التحميل...
+  </div>
+);
+
+// Composant d'image optimisé avec lazy loading
+const OptimizedImage = React.memo(({ src, alt, className, onClick, style, title }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="image-container" style={{ position: 'relative', ...style }}>
+      {/* {!loaded && !error && (
+        <div className="image-placeholder" style={{
+          background: '#f3f4f6',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '150px',
+          borderRadius: '8px'
+        }}>
+          جاري تحميل الصورة...
+        </div>
+      )} */}
+      {!error && (
+        <img
+          src={src}
+          alt={alt}
+          className={className}
+          onClick={onClick}
+          title={title}
+          loading="lazy" // Native lazy loading
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setError(true);
+            console.warn('Image failed to load:', src);
+          }}
+          style={{
+            display: loaded ? 'block' : 'none',
+            ...style
+          }}
+        />
+      )}
+      {error && (
+        <div style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '8px',
+          padding: '20px',
+          textAlign: 'center',
+          color: '#dc2626'
+        }}>
+          فشل في تحميل الصورة
+        </div>
+      )}
+    </div>
+  );
+});
+
+// Composant modal optimisé
+const Modal = React.memo(({ isOpen, onClose, children }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="modal-overlay"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}
+    >
+      {children}
+    </div>
+  );
+});
 
 const ProtectionCivileQuizGame = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
@@ -32,27 +134,38 @@ const ProtectionCivileQuizGame = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [badges, setBadges] = useState([]);
-  const [answeredQuestions, setAnsweredQuestions] = useState({}); // Historique des réponses
-  const [imageZoom, setImageZoom] = useState(null); // État pour le zoom d'image
-  const [showExitConfirm, setShowExitConfirm] = useState(false); // État pour la popup de sortie
+  const [answeredQuestions, setAnsweredQuestions] = useState({});
+  const [imageZoom, setImageZoom] = useState(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
+  // Optimisation: Mémoriser la question actuelle
   const getCurrentQuestion = useCallback(() => {
     if (!selectedCategory) return null;
-    return questionCategories[selectedCategory].questions[currentQuestionIndex];
+    return questionCategories[selectedCategory]?.questions[currentQuestionIndex];
   }, [selectedCategory, currentQuestionIndex]);
 
-  const handleAnswer = useCallback((answerIndex) => {
-    const question = getCurrentQuestion();
-    
-    // Vérifier si la question n'a pas déjà été répondue
-    if (answeredQuestions[currentQuestionIndex]?.answered) {
-      return; // Ne pas permettre de répondre à nouveau
-    }
+  // Optimisation: Mémoriser les données de catégorie
+  const categoryData = useMemo(() => {
+    return selectedCategory ? questionCategories[selectedCategory] : null;
+  }, [selectedCategory]);
 
+  // Optimisation: Mémoriser si la question est répondue
+  const isQuestionAnswered = useMemo(() => {
+    return answeredQuestions[currentQuestionIndex]?.answered || false;
+  }, [answeredQuestions, currentQuestionIndex]);
+
+  // Optimisation: Debounce pour les clics rapides
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleAnswer = useCallback(async (answerIndex) => {
+    if (isProcessing || isQuestionAnswered) return;
+    
+    setIsProcessing(true);
+    
+    const question = getCurrentQuestion();
     setSelectedAnswer(answerIndex);
     setShowAnswer(true);
 
-    // Calculer les points seulement si c'est la première fois qu'on répond
     let pointsEarned = 0;
     if (question && answerIndex === question.correct) {
       const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
@@ -60,18 +173,16 @@ const ProtectionCivileQuizGame = () => {
       setScore(prevScore => prevScore + pointsEarned);
     }
 
-    // Sauvegarder la réponse dans l'historique
     setAnsweredQuestions(prev => ({
       ...prev,
       [currentQuestionIndex]: {
         selectedAnswer: answerIndex,
         correct: question?.correct,
         answered: true,
-        pointsEarned: pointsEarned // Sauvegarder les points gagnés pour cette question
+        pointsEarned: pointsEarned
       }
     }));
 
-    // Vérifier les nouveaux badges seulement si des points ont été gagnés
     if (pointsEarned > 0) {
       const newScore = score + pointsEarned;
       badgesList.forEach(badge => {
@@ -80,33 +191,43 @@ const ProtectionCivileQuizGame = () => {
         }
       });
     }
-  }, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, answeredQuestions]);
 
+    // Petit délai pour éviter les clics rapides
+    setTimeout(() => setIsProcessing(false), 300);
+  }, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing]);
+
+  // Optimisation du timer
   useEffect(() => {
-    // Ne démarrer le timer que si la question n'a pas été répondue
-    const questionData = answeredQuestions[currentQuestionIndex];
-    const isQuestionAnswered = questionData?.answered;
+    if (currentScreen !== 'quiz' || showAnswer || isQuestionAnswered || timeLeft <= 0) {
+      return;
+    }
 
-    if (currentScreen === 'quiz' && timeLeft > 0 && !showAnswer && !isQuestionAnswered) {
-      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !showAnswer && !isQuestionAnswered) {
+    const timer = setTimeout(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [timeLeft, showAnswer, currentScreen, isQuestionAnswered]);
+
+  // Auto-submit quand le temps est écoulé
+  useEffect(() => {
+    if (timeLeft === 0 && !showAnswer && !isQuestionAnswered && currentScreen === 'quiz') {
       handleAnswer(null);
     }
-  }, [timeLeft, showAnswer, currentScreen, handleAnswer, currentQuestionIndex, answeredQuestions]);
+  }, [timeLeft, showAnswer, isQuestionAnswered, currentScreen, handleAnswer]);
 
-  const nextQuestion = () => {
-    const categoryQuestions = questionCategories[selectedCategory].questions;
-    if (currentQuestionIndex < categoryQuestions.length - 1) {
+  const nextQuestion = useCallback(() => {
+    if (!categoryData) return;
+    
+    if (currentQuestionIndex < categoryData.questions.length - 1) {
       const nextIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(nextIndex);
       
-      // Vérifier si la question suivante a déjà été répondue
       const nextQuestionData = answeredQuestions[nextIndex];
-      if (nextQuestionData && nextQuestionData.answered) {
+      if (nextQuestionData?.answered) {
         setShowAnswer(true);
         setSelectedAnswer(nextQuestionData.selectedAnswer);
-        setTimeLeft(0); // Pas de timer pour les questions déjà répondues
+        setTimeLeft(0);
       } else {
         setTimeLeft(gameSettings.questionTime);
         setShowAnswer(false);
@@ -115,28 +236,27 @@ const ProtectionCivileQuizGame = () => {
     } else {
       setCurrentScreen('results');
     }
-  };
+  }, [categoryData, currentQuestionIndex, answeredQuestions]);
 
-  const previousQuestion = () => {
+  const previousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
       const prevIndex = currentQuestionIndex - 1;
       setCurrentQuestionIndex(prevIndex);
       
-      // Restaurer l'état de la question précédente
       const prevQuestionData = answeredQuestions[prevIndex];
-      if (prevQuestionData && prevQuestionData.answered) {
+      if (prevQuestionData?.answered) {
         setShowAnswer(true);
         setSelectedAnswer(prevQuestionData.selectedAnswer);
-        setTimeLeft(0); // Pas de timer pour les questions déjà répondues
+        setTimeLeft(0);
       } else {
         setShowAnswer(false);
         setSelectedAnswer(null);
         setTimeLeft(gameSettings.questionTime);
       }
     }
-  };
+  }, [currentQuestionIndex, answeredQuestions]);
 
-  const startGame = (category) => {
+  const startGame = useCallback((category) => {
     setSelectedCategory(category);
     setCurrentQuestionIndex(0);
     setScore(0);
@@ -145,9 +265,9 @@ const ProtectionCivileQuizGame = () => {
     setSelectedAnswer(null);
     setAnsweredQuestions({});
     setCurrentScreen('quiz');
-  };
+  }, []);
 
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     setCurrentScreen('home');
     setSelectedCategory(null);
     setCurrentQuestionIndex(0);
@@ -155,66 +275,54 @@ const ProtectionCivileQuizGame = () => {
     setBadges([]);
     setAnsweredQuestions({});
     setImageZoom(null);
-    setShowExitConfirm(false); // Réinitialiser l'état de la popup
-  };
+    setShowExitConfirm(false);
+  }, []);
 
-  const handleNameSubmit = () => {
+  const handleNameSubmit = useCallback(() => {
     if (tempPlayerName.trim()) {
       setPlayerName(tempPlayerName.trim());
     }
-  };
+  }, [tempPlayerName]);
 
-  // Fonction pour détecter si une image est verticale
-  const isVerticalImage = (imagePath) => {
-    // Cette fonction peut être améliorée avec une détection réelle des dimensions
-    // Pour l'instant, on peut supposer que certains noms de fichiers indiquent une orientation
-    return imagePath && (
-      imagePath.includes('vertical') || 
-      imagePath.includes('portrait') ||
-      imagePath.includes('tall')
-    );
-  };
-
-  // Fonction pour ouvrir le zoom d'image
-  const handleImageZoom = (imageSrc) => {
+  // Optimisation: Mémoriser les fonctions de modal
+  const handleImageZoom = useCallback((imageSrc) => {
     setImageZoom(imageSrc);
-  };
+  }, []);
 
-  // Fonction pour fermer le zoom d'image
-  const closeImageZoom = () => {
+  const closeImageZoom = useCallback(() => {
     setImageZoom(null);
-  };
+  }, []);
 
-  // Fonction pour afficher la popup de sortie
-  const handleExitQuiz = () => {
+  const handleExitQuiz = useCallback(() => {
     setShowExitConfirm(true);
-  };
+  }, []);
 
-  // Fonction pour confirmer la sortie
-  const confirmExitQuiz = () => {
+  const confirmExitQuiz = useCallback(() => {
     setShowExitConfirm(false);
     resetGame();
-  };
+  }, [resetGame]);
 
-  // Fonction pour annuler la sortie
-  const cancelExitQuiz = () => {
+  const cancelExitQuiz = useCallback(() => {
     setShowExitConfirm(false);
-  };
+  }, []);
 
-  // Home Screen (inchangé)
+  // Optimisation: Mémoriser les styles responsive
+  const isMobile = useMemo(() => window.innerWidth <= 768, []);
+  const isSmallMobile = useMemo(() => window.innerWidth <= 480, []);
+
+  // Home Screen
   if (currentScreen === 'home') {
     return (
       <div className="quiz-container">
         <div className="max-width">
-          {/* Enhanced Header */}
           <div className="header">
             <div className="decorative-circle decorative-circle-blue"></div>
             <div className="decorative-circle decorative-circle-green"></div>
             
             <div className="header-flex">
               <div className="logo-container">
-                <img 
-                  src={`${process.env.PUBLIC_URL}/Écusson_protection_civile,_Tunisie.png`}
+                <OptimizedImage 
+                  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.png`}
                   alt="Protection Civile Tunisie" 
                   className="logo"
                 />
@@ -231,13 +339,12 @@ const ProtectionCivileQuizGame = () => {
             </div>
           </div>
 
-          {/* Player Name Input */}
           {!playerName && (
             <div className="card card-enhanced">
               <div className="decorative-bg-primary"></div>
               
               <h3 style={{
-                fontSize: window.innerWidth <= 768 ? '1.5rem' : '1.9rem', 
+                fontSize: isMobile ? '1.5rem' : '1.9rem', 
                 fontWeight: 'bold', 
                 background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
                 WebkitBackgroundClip: 'text',
@@ -249,7 +356,7 @@ const ProtectionCivileQuizGame = () => {
                 zIndex: 1
               }}>أدخل اسمك للبدء</h3>
               
-              <div className={`input-container ${window.innerWidth <= 768 ? 'mobile' : ''}`}>
+              <div className={`input-container ${isMobile ? 'mobile' : ''}`}>
                 <input
                   type="text"
                   placeholder="اسم المتطوع..."
@@ -271,7 +378,6 @@ const ProtectionCivileQuizGame = () => {
 
           {playerName && (
             <>
-              {/* Welcome Message */}
               <div className="welcome-card">
                 <p className="welcome-text">
                   مرحبا <span className="welcome-name">{playerName}</span>! 🎖️
@@ -279,8 +385,7 @@ const ProtectionCivileQuizGame = () => {
                 <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
               </div>
 
-              {/* Categories Grid */}
-              <div className={`grid-three ${window.innerWidth <= 480 ? 'mobile-single' : window.innerWidth <= 768 ? 'mobile-double' : ''}`}>
+              <div className={`grid-three ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
                 {Object.entries(questionCategories).map(([category, data]) => (
                   <div
                     key={category}
@@ -292,7 +397,7 @@ const ProtectionCivileQuizGame = () => {
                     <div className="category-header">
                       <span className="category-icon">{data.icon}</span>
                       <AimOutlined style={{
-                        fontSize: window.innerWidth <= 768 ? '1.6rem' : '2rem', 
+                        fontSize: isMobile ? '1.6rem' : '2rem', 
                         opacity: 0.8,
                         color: 'rgba(255, 255, 255, 0.9)'
                       }} />
@@ -304,7 +409,6 @@ const ProtectionCivileQuizGame = () => {
                 ))}
               </div>
 
-              {/* Badges Display */}
               {badges.length > 0 && (
                 <div className="badges-container">
                   <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
@@ -325,131 +429,106 @@ const ProtectionCivileQuizGame = () => {
     );
   }
 
-  // Quiz Screen - Amélioré
-  if (currentScreen === 'quiz') {
+  // Quiz Screen
+ if (currentScreen === 'quiz') {
     const question = getCurrentQuestion();
-    const categoryData = questionCategories[selectedCategory];
-    const isVertical = question?.image && isVerticalImage(question.image);
-    const isQuestionAnswered = answeredQuestions[currentQuestionIndex]?.answered;
+    
+    if (!question || !categoryData) {
+      return <LoadingSpinner />;
+    }
 
     return (
       <div className="quiz-container">
         <div className="quiz-container-wrapper">
-          {/* Header amélioré */}
-          <div className="quiz-header">
-            <div className="quiz-header-left">
-              <span className="quiz-category-icon">{categoryData.icon}</span>
-              <div>
-                <h4 className="quiz-category-title">{selectedCategory}</h4>
-                <p className="quiz-player-name">{playerName}</p>
+          {/* Header compact optimisé */}
+          <div className="quiz-header-compact">
+            <div className="quiz-header-main">
+              <div className="quiz-category-info">
+                <span className="quiz-category-icon">{categoryData.icon}</span>
+                <div className="quiz-category-details">
+                  <h4 className="quiz-category-title">{selectedCategory}</h4>
+                  <p className="quiz-player-name">{playerName}</p>
+                </div>
+              </div>
+              
+              <div className="quiz-stats-container">
+                <div className="quiz-timer-compact">
+                  <ClockCircleOutlined className="timer-icon" />
+                  <span className={`timer-value ${timeLeft <= 5 && !isQuestionAnswered ? 'warning' : ''}`}>
+                    {isQuestionAnswered ? '✓' : timeLeft}
+                  </span>
+                </div>
+                
+                <div className="quiz-score-compact">
+                  <span className="score-label">النقاط</span>
+                  <span className="score-value">{score}</span>
+                </div>
+                
+                <button 
+                  onClick={handleExitQuiz}
+                  className="quiz-exit-button-compact"
+                  title="الخروج من اللعبة"
+                >
+                  <HomeOutlined />
+                </button>
               </div>
             </div>
-            <div className="quiz-header-right">
-              <div className="quiz-timer-container">
-                <ClockCircleOutlined />
-                <h3 className={`quiz-timer ${timeLeft <= 5 && !isQuestionAnswered ? 'warning' : ''}`}>
-                  {isQuestionAnswered ? '✓' : timeLeft}
-                </h3>
-              </div>
-              <p className="quiz-score">النقاط: {score}</p>
-              <button 
-                onClick={handleExitQuiz}
-                className="quiz-exit-button"
-                title="الخروج من اللعبة"
+
+            {/* Progress bar intégrée */}
+            <div className="progress-bar-integrated">
+              <div 
+                className="progress-fill"
                 style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '2px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  color: '#ef4444',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s ease',
-                  marginLeft: '12px'
+                  width: `${((currentQuestionIndex + 1) / categoryData.questions.length) * 100}%`
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(239, 68, 68, 0.2)';
-                  e.target.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                  e.target.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                }}
-              >
-                <HomeOutlined style={{marginRight: '4px'}} />
-                خروج
-              </button>
+              ></div>
+              <span className="progress-text">
+                {currentQuestionIndex + 1} / {categoryData.questions.length}
+              </span>
             </div>
           </div>
 
-          {/* Progress Bar améliorée */}
-          <div className="progress-bar">
-            <div 
-              className="progress-fill"
-              style={{
-                width: `${((currentQuestionIndex + 1) / categoryData.questions.length) * 100}%`
-              }}
-            ></div>
-          </div>
-
-          <div className="question-card">
-            {/* Question Number */}
-            <div className="question-number">
-              <span className="question-badge">
-                السؤال {currentQuestionIndex + 1} من {categoryData.questions.length}
-                {isQuestionAnswered && <span style={{marginLeft: '8px', color: '#22c55e'}}>✓ تم الإجابة</span>}
+          {/* Question Card optimisée */}
+          <div className="question-card-optimized">
+            <div className="question-header-compact">
+              <span className="question-badge-compact">
+                السؤال {currentQuestionIndex + 1}
+                {isQuestionAnswered && <span className="answered-indicator">✓</span>}
               </span>
-              {question?.image && (
-                <span className="question-with-image-indicator">
-                  سؤال مع صورة
+              {question.image && (
+                <span className="image-indicator">
+                  📷
                 </span>
               )}
             </div>
 
-            {/* Question Text */}
-            <h3 className="question-text">
-              {question?.question}
+            <h3 className="question-text-optimized">
+              {question.question}
             </h3>
 
-            {/* Image Display - Amélioré */}
-            {question?.image && (
-              <div className={`question-image-container ${isVertical ? 'vertical' : ''}`}>
-                <img 
-                  src={`${process.env.PUBLIC_URL}${question.image}`}
-                  alt="سؤال عملي"
-                  className={`question-image ${isVertical ? 'vertical' : ''}`}
-                  onClick={() => handleImageZoom(`${process.env.PUBLIC_URL}${question.image}`)}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    console.log('Image not found:', question.image);
-                  }}
-                  style={{ cursor: 'pointer' }}
-                  title="انقر للتكبير"
-                />
-                <div style={{
-                  position: 'absolute',
-                  top: '10px',
-                  right: '10px',
-                  background: 'rgba(0,0,0,0.6)',
-                  color: 'white',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.8rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  <ZoomInOutlined />
-                  انقر للتكبير
-                </div>
-              </div>
-            )}
+           {question.image && (
+  <div className="question-image-container-compact">
+    <picture>
+      <source srcSet={`${process.env.PUBLIC_URL}${question.image}`} type="image/webp" />
+      <img 
+        src={`${process.env.PUBLIC_URL}${question.image.replace('.webp', '.jpg')}`} // Remplacez par le format de secours
+        alt="سؤال عملي"
+        className="question-image-compact"
+        onClick={() => handleImageZoom(`${process.env.PUBLIC_URL}${question.image}`)}
+        style={{ cursor: 'pointer' }}
+        title="انقر للتكبير"
+      />
+    </picture>
+    <div className="zoom-indicator-compact">
+      <ZoomInOutlined />
+    </div>
+  </div>
+)}
 
-            {/* Options */}
-            <div className="options-container">
-              {question?.options.map((option, index) => {
-                let buttonClass = 'option-button smooth-transition';
+
+            <div className="options-container-optimized">
+              {question.options.map((option, index) => {
+                let buttonClass = 'option-button-optimized smooth-transition';
                 
                 if (showAnswer) {
                   if (index === question.correct) {
@@ -462,194 +541,106 @@ const ProtectionCivileQuizGame = () => {
                 return (
                   <button
                     key={index}
-                    onClick={() => !showAnswer && !isQuestionAnswered && handleAnswer(index)}
-                    disabled={showAnswer || isQuestionAnswered}
+                    onClick={() => handleAnswer(index)}
+                    disabled={showAnswer || isQuestionAnswered || isProcessing}
                     className={buttonClass}
                   >
-                    <span className="option-letter">
+                    <span className="option-letter-compact">
                       {String.fromCharCode(65 + index)}
                     </span>
-                    {option}
+                    <span className="option-text">{option}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Answer Explanation */}
-            {showAnswer && question?.explanation && (
-              <div className="explanation-card">
-                <h5 className="explanation-title">💡 التفسير:</h5>
-                <p className="explanation-text">{question.explanation}</p>
+            {showAnswer && question.explanation && (
+              <div className="explanation-card-compact">
+                <div className="explanation-header">
+                  <span className="explanation-icon">💡</span>
+                  <span className="explanation-title-compact">التفسير</span>
+                </div>
+                <p className="explanation-text-compact">{question.explanation}</p>
               </div>
             )}
 
-            {/* Navigation Buttons - Amélioré */}
             {(showAnswer || isQuestionAnswered) && (
-              <div className="question-navigation">
+              <div className="question-navigation-compact">
                 <button
                   onClick={previousQuestion}
                   disabled={currentQuestionIndex === 0}
-                  className="nav-button previous"
+                  className="nav-button-compact previous"
                 >
                   <LeftOutlined />
-                  السؤال السابق
+                  السابق
                 </button>
 
                 <button
                   onClick={nextQuestion}
-                  className="next-button"
+                  className="next-button-compact"
                 >
-                  {currentQuestionIndex < categoryData.questions.length - 1 ? 'السؤال التالي' : 'عرض النتائج 🏆'}
-                  <RightOutlined />
+                  {currentQuestionIndex < categoryData.questions.length - 1 ? (
+                    <>التالي <RightOutlined /></>
+                  ) : (
+                    <>النتائج 🏆</>
+                  )}
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Image Zoom Modal */}
-        {imageZoom && (
-          <div className="image-zoom-overlay" onClick={closeImageZoom}>
-            <div className="image-zoom-container" onClick={(e) => e.stopPropagation()}>
-              <img 
-                src={imageZoom} 
-                alt="صورة مكبرة" 
-                className="image-zoom"
-              />
-              <button 
-                className="image-zoom-close"
-                onClick={closeImageZoom}
-              >
-                <CloseOutlined />
-              </button>
-            </div>
+        {/* Image Zoom Modal optimisé */}
+        <Modal isOpen={!!imageZoom} onClose={closeImageZoom}>
+          <div className="image-zoom-container-optimized" onClick={(e) => e.stopPropagation()}>
+            <OptimizedImage 
+              src={imageZoom} 
+              alt="صورة مكبرة" 
+              className="image-zoom-optimized"
+            />
+            <button 
+              className="image-zoom-close-optimized"
+              onClick={closeImageZoom}
+            >
+              <CloseOutlined />
+            </button>
           </div>
-        )}
+        </Modal>
 
-        {/* Exit Confirmation Modal */}
-        {showExitConfirm && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}>
-            <div style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-              borderRadius: '20px',
-              padding: '32px',
-              maxWidth: '400px',
-              width: '90%',
-              textAlign: 'center',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-              border: '2px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <div style={{
-                fontSize: '3rem',
-                marginBottom: '16px'
-              }}>⚠️</div>
+        {/* Exit Confirmation Modal optimisé */}
+        <Modal isOpen={showExitConfirm} onClose={cancelExitQuiz}>
+          <div className="exit-confirm-modal-optimized">
+            <div className="exit-confirm-content">
+              <div className="exit-confirm-icon">⚠️</div>
+              <h3 className="exit-confirm-title-compact">هل تريد الخروج؟</h3>
+              <p className="exit-confirm-text-compact">ستفقد التقدم الحالي</p>
               
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#1f2937',
-                marginBottom: '12px'
-              }}>
-                هل أنت متأكد من الخروج؟
-              </h3>
-              
-              <p style={{
-                color: '#6b7280',
-                fontSize: '1rem',
-                marginBottom: '28px',
-                lineHeight: '1.6'
-              }}>
-                سيتم فقدان جميع إجاباتك والنقاط المحصلة
-              </p>
-              
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-                justifyContent: 'center'
-              }}>
-                <button
-                  onClick={confirmExitQuiz}
-                  style={{
-                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '12px 24px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-                  }}
-                >
-                  نعم، الخروج
+              <div className="exit-confirm-buttons-compact">
+                <button onClick={confirmExitQuiz} className="exit-button danger">
+                  خروج
                 </button>
-                
-                <button
-                  onClick={cancelExitQuiz}
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '12px 24px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-                  }}
-                >
+                <button onClick={cancelExitQuiz} className="exit-button cancel">
                   إلغاء
                 </button>
               </div>
             </div>
           </div>
-        )}
+        </Modal>
       </div>
     );
   }
   
   // Results Screen
   if (currentScreen === 'results') {
-    const totalQuestions = questionCategories[selectedCategory].questions.length;
+    const totalQuestions = categoryData?.questions.length || 0;
     
-    // Calculer le nombre de réponses correctes
     const correctAnswers = Object.values(answeredQuestions).filter(questionData => {
       if (!questionData.answered) return false;
       const questionIndex = Object.keys(answeredQuestions).find(key => answeredQuestions[key] === questionData);
-      const question = questionCategories[selectedCategory].questions[parseInt(questionIndex)];
+      const question = categoryData?.questions[parseInt(questionIndex)];
       return questionData.selectedAnswer === question?.correct;
     }).length;
     
-    // Pourcentage basé sur les réponses correctes uniquement
     const percentage = Math.round((correctAnswers / totalQuestions) * 100);
     
     let performance = '';
@@ -705,7 +696,7 @@ const ProtectionCivileQuizGame = () => {
                 className="results-button-retry"
               >
                 <ReloadOutlined />
-                  إعادة المحاولة 
+                إعادة المحاولة 
               </button>
               <button
                 onClick={resetGame}
