@@ -321,7 +321,7 @@ const ProtectionCivileQuizGame = () => {
             
             <div className="header-flex">
               <div className="logo-container">
-                <OptimizedImage 
+                <img
                   src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.png`}
                   alt="Protection Civile Tunisie" 
                   className="logo"
@@ -343,7 +343,7 @@ const ProtectionCivileQuizGame = () => {
             <div className="card card-enhanced">
               <div className="decorative-bg-primary"></div>
               
-              <h3 style={{
+              <h1 style={{
                 fontSize: isMobile ? '1.5rem' : '1.9rem', 
                 fontWeight: 'bold', 
                 background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
@@ -354,7 +354,7 @@ const ProtectionCivileQuizGame = () => {
                 textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
                 position: 'relative',
                 zIndex: 1
-              }}>أدخل اسمك للبدء</h3>
+              }}>أدخل اسمك للبدء</h1>
               
               <div className={`input-container ${isMobile ? 'mobile' : ''}`}>
                 <input
