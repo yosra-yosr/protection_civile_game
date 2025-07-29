@@ -322,10 +322,13 @@ const ProtectionCivileQuizGame = () => {
             <div className="header-flex">
               <div className="logo-container">
                 <img
-                  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.png`}
-                  alt="Protection Civile Tunisie" 
-                  className="logo"
-                />
+  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.png`}
+  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.png 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.png 1080w`}
+  sizes="50vw"
+  alt="Protection Civile Tunisie"
+  className="logo"
+/>
+
               </div>
               
               <div style={{flex: 1, textAlign: 'center', position: 'relative', zIndex: 2}}>
