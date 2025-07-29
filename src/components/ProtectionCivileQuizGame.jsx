@@ -323,7 +323,7 @@ const ProtectionCivileQuizGame = () => {
               <div className="logo-container">
                 <img
   src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.png`}
-  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.png 1080w`}
+  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.png 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.png 1080w`}
   sizes="50vw"
   alt="Protection Civile Tunisie"
   className="logo"
