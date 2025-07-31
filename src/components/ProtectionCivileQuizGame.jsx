@@ -11,11 +11,9 @@ import {
   CloseOutlined
 } from '@ant-design/icons';
 
-// Lazy loading pour les données (si possible, sinon garder l'import normal)
+// Lazy loading pour les données
 import { questionCategories, badges as badgesList, gameSettings } from './data.js';
-
-// Optimisation: Combiner tous les styles en un seul import
-import '../styles/app.css'; // Fichier combiné de tous vos styles CSS
+import '../styles/app.css';
 
 // Composant de chargement léger
 const LoadingSpinner = () => (
@@ -38,18 +36,6 @@ const OptimizedImage = React.memo(({ src, alt, className, onClick, style, title 
 
   return (
     <div className="image-container" style={{ position: 'relative', ...style }}>
-      {/* {!loaded && !error && (
-        <div className="image-placeholder" style={{
-          background: '#f3f4f6',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '150px',
-          borderRadius: '8px'
-        }}>
-          جاري تحميل الصورة...
-        </div>
-      )} */}
       {!error && (
         <img
           src={src}
@@ -57,7 +43,7 @@ const OptimizedImage = React.memo(({ src, alt, className, onClick, style, title 
           className={className}
           onClick={onClick}
           title={title}
-          loading="lazy" // Native lazy loading
+          loading="lazy"
           onLoad={() => setLoaded(true)}
           onError={() => {
             setError(true);
@@ -123,6 +109,220 @@ const Modal = React.memo(({ isOpen, onClose, children }) => {
   );
 });
 
+// Composant pour les questions drag-and-drop
+const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
+  const [draggedWord, setDraggedWord] = useState(null);
+  const [droppedWords, setDroppedWords] = useState({});
+  const [availableWords, setAvailableWords] = useState([...question.words]);
+  
+  // Initialiser les réponses utilisateur si elles existent
+ // Réinitialiser les mots à chaque changement de question
+  useEffect(() => {
+    if (userAnswers && Object.keys(userAnswers).length > 0) {
+      setDroppedWords(userAnswers);
+      const usedWords = Object.values(userAnswers);
+      setAvailableWords(question.words.filter(word => !usedWords.includes(word)));
+    } else {
+      // Réinitialiser complètement pour une nouvelle question
+      setDroppedWords({});
+      setAvailableWords([...question.words]);
+    }
+  }, [userAnswers, question.words, question.question]); // Ajouter question.question comme dépendance
+
+  const handleDragStart = (e, word) => {
+    setDraggedWord(word);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, blankId) => {
+    e.preventDefault();
+    
+    if (!draggedWord || showAnswer || isQuestionAnswered) return;
+
+    const newDroppedWords = { ...droppedWords };
+    const newAvailableWords = [...availableWords];
+
+    // Si il y a déjà un mot dans cette case, le remettre dans les mots disponibles
+    if (newDroppedWords[blankId]) {
+      newAvailableWords.push(newDroppedWords[blankId]);
+    }
+
+    // Placer le nouveau mot
+    newDroppedWords[blankId] = draggedWord;
+    
+    // Retirer le mot de la liste disponible
+    const wordIndex = newAvailableWords.indexOf(draggedWord);
+    if (wordIndex > -1) {
+      newAvailableWords.splice(wordIndex, 1);
+    }
+
+    setDroppedWords(newDroppedWords);
+    setAvailableWords(newAvailableWords);
+    setDraggedWord(null);
+
+    // Vérifier si toutes les cases sont remplies
+    if (Object.keys(newDroppedWords).length === question.blanks.length) {
+      onAnswer(newDroppedWords);
+    }
+  };
+
+  const removeWordFromBlank = (blankId) => {
+    if (showAnswer || isQuestionAnswered) return;
+
+    const word = droppedWords[blankId];
+    if (word) {
+      const newDroppedWords = { ...droppedWords };
+      delete newDroppedWords[blankId];
+      
+      const newAvailableWords = [...availableWords, word];
+      
+      setDroppedWords(newDroppedWords);
+      setAvailableWords(newAvailableWords);
+    }
+  };
+
+  const renderParagraphWithBlanks = () => {
+    let paragraphParts = question.paragraph.split('_____');
+    let result = [];
+
+    paragraphParts.forEach((part, index) => {
+      result.push(<span key={`text-${index}`}>{part}</span>);
+      
+      if (index < paragraphParts.length - 1) {
+        const blankId = index;
+        const isCorrect = showAnswer && droppedWords[blankId] === question.blanks[blankId].correctAnswer;
+        const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== question.blanks[blankId].correctAnswer;
+        
+        result.push(
+          <span
+            key={`blank-${blankId}`}
+            className={`fill-blank ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''} ${!droppedWords[blankId] ? 'empty' : ''}`}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, blankId)}
+            onClick={() => removeWordFromBlank(blankId)}
+            style={{
+              display: 'inline-block',
+              minWidth: '120px',
+              minHeight: '35px',
+              border: '2px dashed #ccc',
+              borderRadius: '8px',
+              margin: '0 5px',
+              padding: '5px 10px',
+              textAlign: 'center',
+              backgroundColor: isCorrect ? '#dcfce7' : isWrong ? '#fef2f2' : droppedWords[blankId] ? '#f3f4f6' : '#f9fafb',
+              borderColor: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : droppedWords[blankId] ? '#6b7280' : '#d1d5db',
+              cursor: droppedWords[blankId] && !showAnswer ? 'pointer' : 'default',
+              transition: 'all 0.2s ease'
+            }}
+            title={droppedWords[blankId] && !showAnswer ? 'انقر لإزالة الكلمة' : ''}
+          >
+            {showAnswer && !droppedWords[blankId] ? (
+              <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
+                {question.blanks[blankId].correctAnswer}
+              </span>
+            ) : (
+              droppedWords[blankId] || ''
+            )}
+          </span>
+        );
+      }
+    });
+
+    return result;
+  };
+
+  return (
+    <div className="fill-in-blanks-container">
+      <div className="paragraph-container" style={{ 
+        fontSize: '1.1rem', 
+        lineHeight: '2.2', 
+        marginBottom: '30px',
+        padding: '20px',
+        backgroundColor: '#f8fafc',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0'
+      }}>
+        {renderParagraphWithBlanks()}
+      </div>
+
+      {!showAnswer && !isQuestionAnswered && availableWords.length > 0 && (
+        <div className="words-container" style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '10px',
+          justifyContent: 'center',
+          padding: '20px',
+          backgroundColor: '#f1f5f9',
+          borderRadius: '12px',
+          border: '2px dashed #cbd5e1'
+        }}>
+          <div style={{ width: '100%', textAlign: 'center', marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>
+            اسحب الكلمات إلى أماكنها الصحيحة
+          </div>
+          {availableWords.map((word, index) => (
+            <div
+              key={`${word}-${index}`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, word)}
+              className="draggable-word"
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#ffffff',
+                border: '2px solid #3b82f6',
+                borderRadius: '20px',
+                cursor: 'grab',
+                userSelect: 'none',
+                fontSize: '0.95rem',
+                fontWeight: '500',
+                color: '#1e40af',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseDown={(e) => e.target.style.cursor = 'grabbing'}
+              onMouseUp={(e) => e.target.style.cursor = 'grab'}
+            >
+              {word}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showAnswer && (
+        <div className="fill-blanks-results" style={{
+          marginTop: '20px',
+          padding: '15px',
+          backgroundColor: '#f0f9ff',
+          borderRadius: '8px',
+          border: '1px solid #0ea5e9'
+        }}>
+          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>النتيجة:</h4>
+          {question.blanks.map((blank, index) => {
+            const userAnswer = droppedWords[blank.id];
+            const isCorrect = userAnswer === blank.correctAnswer;
+            return (
+              <div key={blank.id} style={{ 
+                margin: '5px 0',
+                color: isCorrect ? '#16a34a' : '#dc2626'
+              }}>
+                <strong>الفراغ {index + 1}:</strong> 
+                <span style={{ marginLeft: '10px' }}>
+                  {userAnswer || 'لم يتم الإجابة'} 
+                  {isCorrect ? ' ✓' : ` ✗ (الصحيح: ${blank.correctAnswer})`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+});
+
 const ProtectionCivileQuizGame = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -157,46 +357,83 @@ const ProtectionCivileQuizGame = () => {
   // Optimisation: Debounce pour les clics rapides
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAnswer = useCallback(async (answerIndex) => {
+  const handleAnswer = useCallback(async (answerData) => {
     if (isProcessing || isQuestionAnswered) return;
     
     setIsProcessing(true);
     
     const question = getCurrentQuestion();
-    setSelectedAnswer(answerIndex);
-    setShowAnswer(true);
-
-    let pointsEarned = 0;
-    if (question && answerIndex === question.correct) {
-      const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
-      pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
-      setScore(prevScore => prevScore + pointsEarned);
-    }
-
-    setAnsweredQuestions(prev => ({
-      ...prev,
-      [currentQuestionIndex]: {
-        selectedAnswer: answerIndex,
-        correct: question?.correct,
-        answered: true,
-        pointsEarned: pointsEarned
-      }
-    }));
-
-    if (pointsEarned > 0) {
-      const newScore = score + pointsEarned;
-      badgesList.forEach(badge => {
-        if (newScore >= badge.requirement && !badges.includes(badge.name)) {
-          setBadges(prev => [...prev, badge.name]);
+    
+    // Pour les questions fill-in-blanks
+    if (question?.type === 'fill-in-blanks') {
+      setShowAnswer(true);
+      
+      let correctCount = 0;
+      question.blanks.forEach(blank => {
+        if (answerData[blank.id] === blank.correctAnswer) {
+          correctCount++;
         }
       });
+      
+      const percentage = correctCount / question.blanks.length;
+      let pointsEarned = 0;
+      
+      if (percentage === 1) {
+        // Toutes les réponses sont correctes
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
+      } else if (percentage >= 0.7) {
+        // Au moins 70% de bonnes réponses
+        pointsEarned = Math.floor(gameSettings.pointsPerCorrectAnswer * percentage);
+      }
+
+      setScore(prevScore => prevScore + pointsEarned);
+      
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          userAnswers: answerData,
+          answered: true,
+          pointsEarned: pointsEarned,
+          correctCount: correctCount,
+          totalBlanks: question.blanks.length
+        }
+      }));
+    } else {
+      // Pour les questions normales
+      setSelectedAnswer(answerData);
+      setShowAnswer(true);
+
+      let pointsEarned = 0;
+      if (question && answerData === question.correct) {
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
+        setScore(prevScore => prevScore + pointsEarned);
+      }
+
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          selectedAnswer: answerData,
+          correct: question?.correct,
+          answered: true,
+          pointsEarned: pointsEarned
+        }
+      }));
     }
 
-    // Petit délai pour éviter les clics rapides
-    setTimeout(() => setIsProcessing(false), 300);
-  }, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing]);
+    // Vérifier les badges
+    const newScore = score + (answeredQuestions[currentQuestionIndex]?.pointsEarned || 0);
+    badgesList.forEach(badge => {
+      if (newScore >= badge.requirement && !badges.includes(badge.name)) {
+        setBadges(prev => [...prev, badge.name]);
+      }
+    });
 
-  // Optimisation du timer
+    setTimeout(() => setIsProcessing(false), 300);
+  }, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing, answeredQuestions]);
+
+  // Timer logic
   useEffect(() => {
     if (currentScreen !== 'quiz' || showAnswer || isQuestionAnswered || timeLeft <= 0) {
       return;
@@ -204,17 +441,22 @@ const ProtectionCivileQuizGame = () => {
 
     const timer = setTimeout(() => {
       setTimeLeft(prev => prev - 1);
-    }, 1000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [timeLeft, showAnswer, currentScreen, isQuestionAnswered]);
 
-  // Auto-submit quand le temps est écoulé
+  // Auto-submit when time is up
   useEffect(() => {
     if (timeLeft === 0 && !showAnswer && !isQuestionAnswered && currentScreen === 'quiz') {
-      handleAnswer(null);
+      const question = getCurrentQuestion();
+      if (question?.type === 'fill-in-blanks') {
+        handleAnswer({});
+      } else {
+        handleAnswer(null);
+      }
     }
-  }, [timeLeft, showAnswer, isQuestionAnswered, currentScreen, handleAnswer]);
+  }, [timeLeft, showAnswer, isQuestionAnswered, currentScreen, handleAnswer, getCurrentQuestion]);
 
   const nextQuestion = useCallback(() => {
     if (!categoryData) return;
@@ -226,7 +468,9 @@ const ProtectionCivileQuizGame = () => {
       const nextQuestionData = answeredQuestions[nextIndex];
       if (nextQuestionData?.answered) {
         setShowAnswer(true);
-        setSelectedAnswer(nextQuestionData.selectedAnswer);
+        if (nextQuestionData.selectedAnswer !== undefined) {
+          setSelectedAnswer(nextQuestionData.selectedAnswer);
+        }
         setTimeLeft(0);
       } else {
         setTimeLeft(gameSettings.questionTime);
@@ -246,7 +490,9 @@ const ProtectionCivileQuizGame = () => {
       const prevQuestionData = answeredQuestions[prevIndex];
       if (prevQuestionData?.answered) {
         setShowAnswer(true);
-        setSelectedAnswer(prevQuestionData.selectedAnswer);
+        if (prevQuestionData.selectedAnswer !== undefined) {
+          setSelectedAnswer(prevQuestionData.selectedAnswer);
+        }
         setTimeLeft(0);
       } else {
         setShowAnswer(false);
@@ -284,7 +530,6 @@ const ProtectionCivileQuizGame = () => {
     }
   }, [tempPlayerName]);
 
-  // Optimisation: Mémoriser les fonctions de modal
   const handleImageZoom = useCallback((imageSrc) => {
     setImageZoom(imageSrc);
   }, []);
@@ -306,7 +551,6 @@ const ProtectionCivileQuizGame = () => {
     setShowExitConfirm(false);
   }, []);
 
-  // Optimisation: Mémoriser les styles responsive
   const isMobile = useMemo(() => window.innerWidth <= 768, []);
   const isSmallMobile = useMemo(() => window.innerWidth <= 480, []);
 
@@ -322,13 +566,12 @@ const ProtectionCivileQuizGame = () => {
             <div className="header-flex">
               <div className="logo-container">
                 <img
-  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp`}
-  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
-  sizes="50vw"
-  alt="Protection Civile Tunisie"
-  className="logo"
-/>
-
+                  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp`}
+                  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
+                  sizes="50vw"
+                  alt="Protection Civile Tunisie"
+                  className="logo"
+                />
               </div>
               
               <div style={{flex: 1, textAlign: 'center', position: 'relative', zIndex: 2}}>
@@ -407,7 +650,11 @@ const ProtectionCivileQuizGame = () => {
                     </div>
                     
                     <h4 className="category-title">{category}</h4>
-                    <p className="category-description">{data.questions.length} سؤال</p>
+                    <p className="category-description">
+                      {data.questions.length} سؤال
+                      {data.type === 'fill-in-blanks' && ' • املأ الفراغات'}
+                      {data.type === 'qcm' && ' • أسئلة متعددة الإختيارات'}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -433,7 +680,7 @@ const ProtectionCivileQuizGame = () => {
   }
 
   // Quiz Screen
- if (currentScreen === 'quiz') {
+  if (currentScreen === 'quiz') {
     const question = getCurrentQuestion();
     
     if (!question || !categoryData) {
@@ -472,7 +719,7 @@ const ProtectionCivileQuizGame = () => {
                   className="quiz-exit-button-compact"
                   title="الخروج من اللعبة"
                 >
-                  <HomeOutlined />
+                  <HomeOutlined /> الخروج
                 </button>
               </div>
             </div>
@@ -499,63 +746,75 @@ const ProtectionCivileQuizGame = () => {
                 {isQuestionAnswered && <span className="answered-indicator">✓</span>}
               </span>
               {question.image && (
-                <span className="image-indicator">
-                  📷
-                </span>
+                <span className="image-indicator">📷</span>
+              )}
+              {question.type === 'fill-in-blanks' && (
+                <span className="question-type-indicator">📝 املأ الفراغات</span>
               )}
             </div>
 
-            <h3 className="question-text-optimized">
-              {question.question}
-            </h3>
+            {question.type === 'fill-in-blanks' ? (
+              <FillInBlanksQuestion
+                question={question}
+                onAnswer={handleAnswer}
+                showAnswer={showAnswer}
+                isQuestionAnswered={isQuestionAnswered}
+                userAnswers={answeredQuestions[currentQuestionIndex]?.userAnswers}
+              />
+            ) : (
+              <>
+                <h3 className="question-text-optimized">
+                  {question.question}
+                </h3>
 
-           {question.image && (
-  <div className="question-image-container-compact">
-    <picture>
-      <source srcSet={`${process.env.PUBLIC_URL}${question.image}`} type="image/webp" />
-      <img 
-        src={`${process.env.PUBLIC_URL}${question.image.replace('.webp', '.jpg')}`} // Remplacez par le format de secours
-        alt="سؤال عملي"
-        className="question-image-compact"
-        onClick={() => handleImageZoom(`${process.env.PUBLIC_URL}${question.image}`)}
-        style={{ cursor: 'pointer' }}
-        title="انقر للتكبير"
-      />
-    </picture>
-    <div className="zoom-indicator-compact">
-      <ZoomInOutlined />
-    </div>
-  </div>
-)}
+                {question.image && (
+                  <div className="question-image-container-compact">
+                    <picture>
+                      <source srcSet={`${process.env.PUBLIC_URL}${question.image}`} type="image/webp" />
+                      <img 
+                        src={`${process.env.PUBLIC_URL}${question.image.replace('.webp', '.jpg')}`}
+                        alt="سؤال عملي"
+                        className="question-image-compact"
+                        onClick={() => handleImageZoom(`${process.env.PUBLIC_URL}${question.image}`)}
+                        style={{ cursor: 'pointer' }}
+                        title="انقر للتكبير"
+                      />
+                    </picture>
+                    <div className="zoom-indicator-compact">
+                      <ZoomInOutlined />
+                    </div>
+                  </div>
+                )}
 
+                <div className="options-container-optimized">
+                  {question.options.map((option, index) => {
+                    let buttonClass = 'option-button-optimized smooth-transition';
+                    
+                    if (showAnswer) {
+                      if (index === question.correct) {
+                        buttonClass += ' correct';
+                      } else if (index === selectedAnswer && selectedAnswer !== question.correct) {
+                        buttonClass += ' wrong';
+                      }
+                    }
 
-            <div className="options-container-optimized">
-              {question.options.map((option, index) => {
-                let buttonClass = 'option-button-optimized smooth-transition';
-                
-                if (showAnswer) {
-                  if (index === question.correct) {
-                    buttonClass += ' correct';
-                  } else if (index === selectedAnswer && selectedAnswer !== question.correct) {
-                    buttonClass += ' wrong';
-                  }
-                }
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswer(index)}
-                    disabled={showAnswer || isQuestionAnswered || isProcessing}
-                    className={buttonClass}
-                  >
-                    <span className="option-letter-compact">
-                      {String.fromCharCode(65 + index)}
-                    </span>
-                    <span className="option-text">{option}</span>
-                  </button>
-                );
-              })}
-            </div>
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handleAnswer(index)}
+                        disabled={showAnswer || isQuestionAnswered || isProcessing}
+                        className={buttonClass}
+                      >
+                        <span className="option-letter-compact">
+                          {String.fromCharCode(65 + index)}
+                        </span>
+                        <span className="option-text">{option}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
 
             {showAnswer && question.explanation && (
               <div className="explanation-card-compact">
@@ -635,16 +894,31 @@ const ProtectionCivileQuizGame = () => {
   
   // Results Screen
   if (currentScreen === 'results') {
-    const totalQuestions = categoryData?.questions.length || 0;
+    // const totalQuestions = categoryData?.questions.length || 0;
     
-    const correctAnswers = Object.values(answeredQuestions).filter(questionData => {
-      if (!questionData.answered) return false;
-      const questionIndex = Object.keys(answeredQuestions).find(key => answeredQuestions[key] === questionData);
+    // Calculate results differently for fill-in-blanks vs normal questions
+    let correctAnswers = 0;
+    let totalPossiblePoints = 0;
+    
+    Object.entries(answeredQuestions).forEach(([questionIndex, questionData]) => {
+      if (!questionData.answered) return;
+      
       const question = categoryData?.questions[parseInt(questionIndex)];
-      return questionData.selectedAnswer === question?.correct;
-    }).length;
+      
+      if (question?.type === 'fill-in-blanks') {
+        // For fill-in-blanks, count individual blanks
+        totalPossiblePoints += question.blanks.length;
+        correctAnswers += questionData.correctCount || 0;
+      } else {
+        // For normal questions
+        totalPossiblePoints += 1;
+        if (questionData.selectedAnswer === question?.correct) {
+          correctAnswers += 1;
+        }
+      }
+    });
     
-    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+    const percentage = totalPossiblePoints > 0 ? Math.round((correctAnswers / totalPossiblePoints) * 100) : 0;
     
     let performance = '';
     let performanceClass = '';
@@ -680,8 +954,10 @@ const ProtectionCivileQuizGame = () => {
                   <p className="results-stat-label">إجمالي النقاط</p>
                 </div>
                 <div className="results-stat">
-                  <h2 className="results-stat-number score">{correctAnswers}/{totalQuestions}</h2>
-                  <p className="results-stat-label">الإجابات الصحيحة</p>
+                  <h2 className="results-stat-number score">{correctAnswers}/{totalPossiblePoints}</h2>
+                  <p className="results-stat-label">
+                    {categoryData?.type === 'fill-in-blanks' ? 'الإجابات الصحيحة' : 'الأسئلة الصحيحة'}
+                  </p>
                 </div>
                 <div className="results-stat">
                   <h2 className={`results-stat-number percentage ${performanceClass}`}>{percentage}%</h2>

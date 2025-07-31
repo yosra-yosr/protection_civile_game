@@ -1978,9 +1978,10 @@ body::before {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  border-radius: 30%;
+  width: 80px;
+  height: 50px;
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3025,4 +3026,238 @@ body::before {
   .results-buttons {
     gap: 12px;
   }
+}
+
+
+
+
+
+
+
+
+
+
+/* Styles pour les questions drag-and-drop */
+
+.fill-in-blanks-container {
+  width: 100%;
+}
+
+.paragraph-container {
+  font-size: 1.1rem;
+  line-height: 2.2;
+  margin-bottom: 30px;
+  padding: 20px;
+  color: #0f172a;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  text-align: right;
+  direction: rtl;
+}
+
+.fill-blank {
+  display: inline-block;
+  min-width: 120px;
+  min-height: 35px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  margin: 0 5px;
+  padding: 5px 10px;
+  text-align: center;
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.fill-blank.empty {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.fill-blank.correct {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.fill-blank.wrong {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.fill-blank:hover {
+  border-color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+.words-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+  margin-top: 20px;
+}
+
+.draggable-word {
+  padding: 8px 16px;
+  background-color: #ffffff;
+  border: 2px solid #3b82f6;
+  border-radius: 20px;
+  cursor: grab;
+  user-select: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e40af;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.draggable-word:hover {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.draggable-word:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.fill-blanks-results {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f9ff;
+  border-radius: 8px;
+  border: 1px solid #0ea5e9;
+}
+
+.fill-blanks-results h4 {
+  color: #0369a1;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.question-type-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #059669;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .paragraph-container {
+    font-size: 1rem;
+    line-height: 2;
+    padding: 15px;
+  }
+  
+  .fill-blank {
+    min-width: 100px;
+    min-height: 30px;
+    font-size: 0.9rem;
+    margin: 2px;
+  }
+  
+  .words-container {
+    padding: 15px;
+    gap: 8px;
+  }
+  
+  .draggable-word {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .paragraph-container {
+    font-size: 0.95rem;
+    padding: 12px;
+  }
+  
+  .fill-blank {
+    min-width: 80px;
+    min-height: 28px;
+    font-size: 0.85rem;
+    margin: 1px;
+  }
+  
+  .words-container {
+    padding: 12px;
+    gap: 6px;
+  }
+  
+  .draggable-word {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+}
+
+/* Animation pour les éléments glissés */
+.draggable-word.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.fill-blank.drag-over {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  transform: scale(1.05);
+}
+
+/* Feedback visuel pour les zones de drop */
+.fill-blank:empty::before {
+  content: "اسحب هنا";
+  color: #9ca3af;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Style pour les mots correctement placés */
+.fill-blank.filled {
+  background-color: #f3f4f6;
+  border-color: #6b7280;
+  color: #374151;
+}
+
+/* Animation pour l'apparition des résultats */
+.fill-blanks-results {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Amélioration du focus pour l'accessibilité */
+.draggable-word:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.fill-blank:focus {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
 }
