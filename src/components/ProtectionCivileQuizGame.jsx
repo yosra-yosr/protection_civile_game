@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState,useRef, useEffect, useCallback, useMemo } from 'react';
 import { 
   TrophyOutlined, 
   ClockCircleOutlined,  
@@ -110,13 +110,38 @@ const Modal = React.memo(({ isOpen, onClose, children }) => {
 });
 
 // Composant pour les questions drag-and-drop
+// Composant pour les questions drag-and-drop avec scroll automatique
 const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
   const [draggedWord, setDraggedWord] = useState(null);
   const [droppedWords, setDroppedWords] = useState({});
   const [availableWords, setAvailableWords] = useState([...question.words]);
   
-  // Initialiser les réponses utilisateur si elles existent
- // Réinitialiser les mots à chaque changement de question
+  // Référence pour le conteneur du paragraphe
+  const paragraphRef = useRef(null);
+  
+  // Fonction pour faire défiler vers un élément
+  const scrollToBlank = useCallback((blankElement) => {
+    if (!blankElement) return;
+    
+    const rect = blankElement.getBoundingClientRect();
+    const isVisible = (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+    
+    // Si l'élément n'est pas visible, faire défiler
+    if (!isVisible) {
+      blankElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+  }, []);
+  
+  // Réinitialiser les mots à chaque changement de question
   useEffect(() => {
     if (userAnswers && Object.keys(userAnswers).length > 0) {
       setDroppedWords(userAnswers);
@@ -127,7 +152,7 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
       setDroppedWords({});
       setAvailableWords([...question.words]);
     }
-  }, [userAnswers, question.words, question.question]); // Ajouter question.question comme dépendance
+  }, [userAnswers, question.words, question.question]);
 
   const handleDragStart = (e, word) => {
     setDraggedWord(word);
@@ -164,6 +189,12 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
     setDroppedWords(newDroppedWords);
     setAvailableWords(newAvailableWords);
     setDraggedWord(null);
+
+    // Scroll automatique vers le champ qui vient d'être rempli
+    setTimeout(() => {
+      const blankElement = e.target;
+      scrollToBlank(blankElement);
+    }, 100);
 
     // Vérifier si toutes les cases sont remplies
     if (Object.keys(newDroppedWords).length === question.blanks.length) {
@@ -205,6 +236,7 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, blankId)}
             onClick={() => removeWordFromBlank(blankId)}
+            data-blank-id={blankId}
             style={{
               display: 'inline-block',
               minWidth: '120px',
@@ -217,7 +249,9 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
               backgroundColor: isCorrect ? '#dcfce7' : isWrong ? '#fef2f2' : droppedWords[blankId] ? '#f3f4f6' : '#f9fafb',
               borderColor: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : droppedWords[blankId] ? '#6b7280' : '#d1d5db',
               cursor: droppedWords[blankId] && !showAnswer ? 'pointer' : 'default',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              // Animation de highlight lors du drop
+              animation: droppedWords[blankId] && !showAnswer ? 'blankHighlight 0.5s ease-out' : 'none'
             }}
             title={droppedWords[blankId] && !showAnswer ? 'انقر لإزالة الكلمة' : ''}
           >
@@ -238,15 +272,19 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
 
   return (
     <div className="fill-in-blanks-container">
-      <div className="paragraph-container" style={{ 
-        fontSize: '1.1rem', 
-        lineHeight: '2.2', 
-        marginBottom: '30px',
-        padding: '20px',
-        backgroundColor: '#f8fafc',
-        borderRadius: '12px',
-        border: '1px solid #e2e8f0'
-      }}>
+      <div 
+        ref={paragraphRef}
+        className="paragraph-container" 
+        style={{ 
+          fontSize: '1.1rem', 
+          lineHeight: '2.2', 
+          marginBottom: '30px',
+          padding: '20px',
+          backgroundColor: '#f8fafc',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}
+      >
         {renderParagraphWithBlanks()}
       </div>
 
@@ -281,7 +319,8 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
                 fontWeight: '500',
                 color: '#1e40af',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                transform: draggedWord === word ? 'scale(0.95)' : 'scale(1)'
               }}
               onMouseDown={(e) => e.target.style.cursor = 'grabbing'}
               onMouseUp={(e) => e.target.style.cursor = 'grab'}
@@ -319,6 +358,33 @@ const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQue
           })}
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes blankHighlight {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+          }
+        }
+        
+        .fill-blank.empty:hover {
+          border-color: #3b82f6 !important;
+          background-color: #eff6ff !important;
+        }
+        
+        .draggable-word:hover {
+          transform: scale(1.05) !important;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+        }
+      `}</style>
     </div>
   );
 });
