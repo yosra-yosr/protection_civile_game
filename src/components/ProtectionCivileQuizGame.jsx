@@ -626,7 +626,7 @@ const ProtectionCivileQuizGame = () => {
             <>
               <div className="welcome-card">
                 <p className="welcome-text">
-                  مرحبا <span className="welcome-name">{playerName}</span>! 🎖️
+                  مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
                 </p>
                 <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
               </div>
@@ -988,7 +988,7 @@ const ProtectionCivileQuizGame = () => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 };
 
