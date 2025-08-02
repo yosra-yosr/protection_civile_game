@@ -11,11 +11,6 @@
       "src": "protection_civile_Tunisie_petite.png",
       "type": "image/png",
       "sizes": "480x726"
-    },
-    {
-      "src": "protection_civile_Tunisie.png",
-      "type": "image/png",
-      "sizes": "1080x1633"
     }
   ],
   "start_url": ".",
