@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Game App",
+  "name": "Create Game App Sample",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,14 +8,14 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "protection_civile_Tunisie_petite.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "480x726"
     },
     {
-      "src": "logo512.png",
+      "src": "protection_civile_Tunisie.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "1080x1633"
     }
   ],
   "start_url": ".",
