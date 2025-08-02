@@ -6,11 +6,6 @@
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
-    },
-    {
-      "src": "protection_civile_Tunisie_petite.png",
-      "type": "image/png",
-      "sizes": "480x726"
     }
   ],
   "start_url": ".",
