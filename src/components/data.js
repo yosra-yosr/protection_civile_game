@@ -117,11 +117,11 @@ export   const questionCategories = {
                     words: [
                       '20',
                       'الحقوق المدنية',
-                      'جمعية',
                       '18', // distractor
                       '21', // distractor
                       'الحقوق السياسية', // distractor
                       'مؤسسة',
+                      'جمعية من الجمعيات',
                       'الثاني', // distractor
                       'منظمة', // distractor
                       'الأول',
