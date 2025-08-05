@@ -59,7 +59,7 @@ export const TrueFalseQuestion = ({ question, onAnswer, showAnswer, isQuestionAn
 export const DragDropTimeline = ({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
   const [draggedItems, setDraggedItems] = useState([]);
   const [timelineItems, setTimelineItems] = useState([]);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [, setIsCorrect] = useState(false);
 
   // Réinitialiser complètement à chaque nouvelle question
   useEffect(() => {
