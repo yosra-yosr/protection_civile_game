@@ -1,4 +1,4 @@
-import React, { useState,useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   TrophyOutlined, 
   ClockCircleOutlined,  
@@ -7,10 +7,9 @@ import {
   LeftOutlined,
   HomeOutlined,
   ReloadOutlined,
-  ZoomInOutlined,
   CloseOutlined
 } from '@ant-design/icons';
-
+import { QuestionRenderer } from './QuestionTypes';
 // Lazy loading pour les données
 import { questionCategories, badges as badgesList, gameSettings } from './data.js';
 import '../styles/app.css';
@@ -111,283 +110,283 @@ const Modal = React.memo(({ isOpen, onClose, children }) => {
 
 // Composant pour les questions drag-and-drop
 // Composant pour les questions drag-and-drop avec scroll automatique
-const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
-  const [draggedWord, setDraggedWord] = useState(null);
-  const [droppedWords, setDroppedWords] = useState({});
-  const [availableWords, setAvailableWords] = useState([...question.words]);
+// const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
+//   const [draggedWord, setDraggedWord] = useState(null);
+//   const [droppedWords, setDroppedWords] = useState({});
+//   const [availableWords, setAvailableWords] = useState([...question.words]);
   
-  // Référence pour le conteneur du paragraphe
-  const paragraphRef = useRef(null);
+//   // Référence pour le conteneur du paragraphe
+//   const paragraphRef = useRef(null);
   
-  // Fonction pour faire défiler vers un élément
-  const scrollToBlank = useCallback((blankElement) => {
-    if (!blankElement) return;
+//   // Fonction pour faire défiler vers un élément
+//   const scrollToBlank = useCallback((blankElement) => {
+//     if (!blankElement) return;
     
-    const rect = blankElement.getBoundingClientRect();
-    const isVisible = (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
+//     const rect = blankElement.getBoundingClientRect();
+//     const isVisible = (
+//       rect.top >= 0 &&
+//       rect.left >= 0 &&
+//       rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+//       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+//     );
     
-    // Si l'élément n'est pas visible, faire défiler
-    if (!isVisible) {
-      blankElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest'
-      });
-    }
-  }, []);
+//     // Si l'élément n'est pas visible, faire défiler
+//     if (!isVisible) {
+//       blankElement.scrollIntoView({
+//         behavior: 'smooth',
+//         block: 'center',
+//         inline: 'nearest'
+//       });
+//     }
+//   }, []);
   
-  // Réinitialiser les mots à chaque changement de question
-  useEffect(() => {
-    if (userAnswers && Object.keys(userAnswers).length > 0) {
-      setDroppedWords(userAnswers);
-      const usedWords = Object.values(userAnswers);
-      setAvailableWords(question.words.filter(word => !usedWords.includes(word)));
-    } else {
-      // Réinitialiser complètement pour une nouvelle question
-      setDroppedWords({});
-      setAvailableWords([...question.words]);
-    }
-  }, [userAnswers, question.words, question.question]);
+//   // Réinitialiser les mots à chaque changement de question
+//   useEffect(() => {
+//     if (userAnswers && Object.keys(userAnswers).length > 0) {
+//       setDroppedWords(userAnswers);
+//       const usedWords = Object.values(userAnswers);
+//       setAvailableWords(question.words.filter(word => !usedWords.includes(word)));
+//     } else {
+//       // Réinitialiser complètement pour une nouvelle question
+//       setDroppedWords({});
+//       setAvailableWords([...question.words]);
+//     }
+//   }, [userAnswers, question.words, question.question]);
 
-  const handleDragStart = (e, word) => {
-    setDraggedWord(word);
-    e.dataTransfer.effectAllowed = 'move';
-  };
+//   const handleDragStart = (e, word) => {
+//     setDraggedWord(word);
+//     e.dataTransfer.effectAllowed = 'move';
+//   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
+//   const handleDragOver = (e) => {
+//     e.preventDefault();
+//     e.dataTransfer.dropEffect = 'move';
+//   };
 
-  const handleDrop = (e, blankId) => {
-    e.preventDefault();
+//   const handleDrop = (e, blankId) => {
+//     e.preventDefault();
     
-    if (!draggedWord || showAnswer || isQuestionAnswered) return;
+//     if (!draggedWord || showAnswer || isQuestionAnswered) return;
 
-    const newDroppedWords = { ...droppedWords };
-    const newAvailableWords = [...availableWords];
+//     const newDroppedWords = { ...droppedWords };
+//     const newAvailableWords = [...availableWords];
 
-    // Si il y a déjà un mot dans cette case, le remettre dans les mots disponibles
-    if (newDroppedWords[blankId]) {
-      newAvailableWords.push(newDroppedWords[blankId]);
-    }
+//     // Si il y a déjà un mot dans cette case, le remettre dans les mots disponibles
+//     if (newDroppedWords[blankId]) {
+//       newAvailableWords.push(newDroppedWords[blankId]);
+//     }
 
-    // Placer le nouveau mot
-    newDroppedWords[blankId] = draggedWord;
+//     // Placer le nouveau mot
+//     newDroppedWords[blankId] = draggedWord;
     
-    // Retirer le mot de la liste disponible
-    const wordIndex = newAvailableWords.indexOf(draggedWord);
-    if (wordIndex > -1) {
-      newAvailableWords.splice(wordIndex, 1);
-    }
+//     // Retirer le mot de la liste disponible
+//     const wordIndex = newAvailableWords.indexOf(draggedWord);
+//     if (wordIndex > -1) {
+//       newAvailableWords.splice(wordIndex, 1);
+//     }
 
-    setDroppedWords(newDroppedWords);
-    setAvailableWords(newAvailableWords);
-    setDraggedWord(null);
+//     setDroppedWords(newDroppedWords);
+//     setAvailableWords(newAvailableWords);
+//     setDraggedWord(null);
 
-    // Scroll automatique vers le champ qui vient d'être rempli
-    setTimeout(() => {
-      const blankElement = e.target;
-      scrollToBlank(blankElement);
-    }, 100);
+//     // Scroll automatique vers le champ qui vient d'être rempli
+//     setTimeout(() => {
+//       const blankElement = e.target;
+//       scrollToBlank(blankElement);
+//     }, 100);
 
-    // Vérifier si toutes les cases sont remplies
-    if (Object.keys(newDroppedWords).length === question.blanks.length) {
-      onAnswer(newDroppedWords);
-    }
-  };
+//     // Vérifier si toutes les cases sont remplies
+//     if (Object.keys(newDroppedWords).length === question.blanks.length) {
+//       onAnswer(newDroppedWords);
+//     }
+//   };
 
-  const removeWordFromBlank = (blankId) => {
-    if (showAnswer || isQuestionAnswered) return;
+//   const removeWordFromBlank = (blankId) => {
+//     if (showAnswer || isQuestionAnswered) return;
 
-    const word = droppedWords[blankId];
-    if (word) {
-      const newDroppedWords = { ...droppedWords };
-      delete newDroppedWords[blankId];
+//     const word = droppedWords[blankId];
+//     if (word) {
+//       const newDroppedWords = { ...droppedWords };
+//       delete newDroppedWords[blankId];
       
-      const newAvailableWords = [...availableWords, word];
+//       const newAvailableWords = [...availableWords, word];
       
-      setDroppedWords(newDroppedWords);
-      setAvailableWords(newAvailableWords);
-    }
-  };
+//       setDroppedWords(newDroppedWords);
+//       setAvailableWords(newAvailableWords);
+//     }
+//   };
 
-  const renderParagraphWithBlanks = () => {
-    let paragraphParts = question.paragraph.split('_____');
-    let result = [];
+//   const renderParagraphWithBlanks = () => {
+//     let paragraphParts = question.paragraph.split('_____');
+//     let result = [];
 
-    paragraphParts.forEach((part, index) => {
-      result.push(<span key={`text-${index}`}>{part}</span>);
+//     paragraphParts.forEach((part, index) => {
+//       result.push(<span key={`text-${index}`}>{part}</span>);
       
-      if (index < paragraphParts.length - 1) {
-        const blankId = index;
-        const isCorrect = showAnswer && droppedWords[blankId] === question.blanks[blankId].correctAnswer;
-        const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== question.blanks[blankId].correctAnswer;
+//       if (index < paragraphParts.length - 1) {
+//         const blankId = index;
+//         const isCorrect = showAnswer && droppedWords[blankId] === question.blanks[blankId].correctAnswer;
+//         const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== question.blanks[blankId].correctAnswer;
         
-        result.push(
-          <span
-            key={`blank-${blankId}`}
-            className={`fill-blank ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''} ${!droppedWords[blankId] ? 'empty' : ''}`}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, blankId)}
-            onClick={() => removeWordFromBlank(blankId)}
-            data-blank-id={blankId}
-            style={{
-              display: 'inline-block',
-              minWidth: '120px',
-              minHeight: '35px',
-              border: '2px dashed #ccc',
-              borderRadius: '8px',
-              margin: '0 5px',
-              padding: '5px 10px',
-              textAlign: 'center',
-              backgroundColor: isCorrect ? '#dcfce7' : isWrong ? '#fef2f2' : droppedWords[blankId] ? '#f3f4f6' : '#f9fafb',
-              borderColor: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : droppedWords[blankId] ? '#6b7280' : '#d1d5db',
-              cursor: droppedWords[blankId] && !showAnswer ? 'pointer' : 'default',
-              transition: 'all 0.2s ease',
-              // Animation de highlight lors du drop
-              animation: droppedWords[blankId] && !showAnswer ? 'blankHighlight 0.5s ease-out' : 'none'
-            }}
-            title={droppedWords[blankId] && !showAnswer ? 'انقر لإزالة الكلمة' : ''}
-          >
-            {showAnswer && !droppedWords[blankId] ? (
-              <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
-                {question.blanks[blankId].correctAnswer}
-              </span>
-            ) : (
-              droppedWords[blankId] || ''
-            )}
-          </span>
-        );
-      }
-    });
+//         result.push(
+//           <span
+//             key={`blank-${blankId}`}
+//             className={`fill-blank ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''} ${!droppedWords[blankId] ? 'empty' : ''}`}
+//             onDragOver={handleDragOver}
+//             onDrop={(e) => handleDrop(e, blankId)}
+//             onClick={() => removeWordFromBlank(blankId)}
+//             data-blank-id={blankId}
+//             style={{
+//               display: 'inline-block',
+//               minWidth: '120px',
+//               minHeight: '35px',
+//               border: '2px dashed #ccc',
+//               borderRadius: '8px',
+//               margin: '0 5px',
+//               padding: '5px 10px',
+//               textAlign: 'center',
+//               backgroundColor: isCorrect ? '#dcfce7' : isWrong ? '#fef2f2' : droppedWords[blankId] ? '#f3f4f6' : '#f9fafb',
+//               borderColor: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : droppedWords[blankId] ? '#6b7280' : '#d1d5db',
+//               cursor: droppedWords[blankId] && !showAnswer ? 'pointer' : 'default',
+//               transition: 'all 0.2s ease',
+//               // Animation de highlight lors du drop
+//               animation: droppedWords[blankId] && !showAnswer ? 'blankHighlight 0.5s ease-out' : 'none'
+//             }}
+//             title={droppedWords[blankId] && !showAnswer ? 'انقر لإزالة الكلمة' : ''}
+//           >
+//             {showAnswer && !droppedWords[blankId] ? (
+//               <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
+//                 {question.blanks[blankId].correctAnswer}
+//               </span>
+//             ) : (
+//               droppedWords[blankId] || ''
+//             )}
+//           </span>
+//         );
+//       }
+//     });
 
-    return result;
-  };
+//     return result;
+//   };
 
-  return (
-    <div className="fill-in-blanks-container">
-      <div 
-        ref={paragraphRef}
-        className="paragraph-container" 
-        style={{ 
-          fontSize: '1.1rem', 
-          lineHeight: '2.2', 
-          marginBottom: '30px',
-          padding: '20px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '12px',
-          border: '1px solid #e2e8f0'
-        }}
-      >
-        {renderParagraphWithBlanks()}
-      </div>
+//   return (
+//     <div className="fill-in-blanks-container">
+//       <div 
+//         ref={paragraphRef}
+//         className="paragraph-container" 
+//         style={{ 
+//           fontSize: '1.1rem', 
+//           lineHeight: '2.2', 
+//           marginBottom: '30px',
+//           padding: '20px',
+//           backgroundColor: '#f8fafc',
+//           borderRadius: '12px',
+//           border: '1px solid #e2e8f0'
+//         }}
+//       >
+//         {renderParagraphWithBlanks()}
+//       </div>
 
-      {!showAnswer && !isQuestionAnswered && availableWords.length > 0 && (
-        <div className="words-container" style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '10px',
-          justifyContent: 'center',
-          padding: '20px',
-          backgroundColor: '#f1f5f9',
-          borderRadius: '12px',
-          border: '2px dashed #cbd5e1'
-        }}>
-          <div style={{ width: '100%', textAlign: 'center', marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>
-            اسحب الكلمات إلى أماكنها الصحيحة
-          </div>
-          {availableWords.map((word, index) => (
-            <div
-              key={`${word}-${index}`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, word)}
-              className="draggable-word"
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#ffffff',
-                border: '2px solid #3b82f6',
-                borderRadius: '20px',
-                cursor: 'grab',
-                userSelect: 'none',
-                fontSize: '0.95rem',
-                fontWeight: '500',
-                color: '#1e40af',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transform: draggedWord === word ? 'scale(0.95)' : 'scale(1)'
-              }}
-              onMouseDown={(e) => e.target.style.cursor = 'grabbing'}
-              onMouseUp={(e) => e.target.style.cursor = 'grab'}
-            >
-              {word}
-            </div>
-          ))}
-        </div>
-      )}
+//       {!showAnswer && !isQuestionAnswered && availableWords.length > 0 && (
+//         <div className="words-container" style={{
+//           display: 'flex',
+//           flexWrap: 'wrap',
+//           gap: '10px',
+//           justifyContent: 'center',
+//           padding: '20px',
+//           backgroundColor: '#f1f5f9',
+//           borderRadius: '12px',
+//           border: '2px dashed #cbd5e1'
+//         }}>
+//           <div style={{ width: '100%', textAlign: 'center', marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>
+//             اسحب الكلمات إلى أماكنها الصحيحة
+//           </div>
+//           {availableWords.map((word, index) => (
+//             <div
+//               key={`${word}-${index}`}
+//               draggable
+//               onDragStart={(e) => handleDragStart(e, word)}
+//               className="draggable-word"
+//               style={{
+//                 padding: '8px 16px',
+//                 backgroundColor: '#ffffff',
+//                 border: '2px solid #3b82f6',
+//                 borderRadius: '20px',
+//                 cursor: 'grab',
+//                 userSelect: 'none',
+//                 fontSize: '0.95rem',
+//                 fontWeight: '500',
+//                 color: '#1e40af',
+//                 transition: 'all 0.2s ease',
+//                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+//                 transform: draggedWord === word ? 'scale(0.95)' : 'scale(1)'
+//               }}
+//               onMouseDown={(e) => e.target.style.cursor = 'grabbing'}
+//               onMouseUp={(e) => e.target.style.cursor = 'grab'}
+//             >
+//               {word}
+//             </div>
+//           ))}
+//         </div>
+//       )}
 
-      {showAnswer && (
-        <div className="fill-blanks-results" style={{
-          marginTop: '20px',
-          padding: '15px',
-          backgroundColor: '#f0f9ff',
-          borderRadius: '8px',
-          border: '1px solid #0ea5e9'
-        }}>
-          <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>النتيجة:</h4>
-          {question.blanks.map((blank, index) => {
-            const userAnswer = droppedWords[blank.id];
-            const isCorrect = userAnswer === blank.correctAnswer;
-            return (
-              <div key={blank.id} style={{ 
-                margin: '5px 0',
-                color: isCorrect ? '#16a34a' : '#dc2626'
-              }}>
-                <strong>الفراغ {index + 1}:</strong> 
-                <span style={{ marginLeft: '10px' }}>
-                  {userAnswer || 'لم يتم الإجابة'} 
-                  {isCorrect ? ' ✓' : ` ✗ (الصحيح: ${blank.correctAnswer})`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+//       {showAnswer && (
+//         <div className="fill-blanks-results" style={{
+//           marginTop: '20px',
+//           padding: '15px',
+//           backgroundColor: '#f0f9ff',
+//           borderRadius: '8px',
+//           border: '1px solid #0ea5e9'
+//         }}>
+//           <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>النتيجة:</h4>
+//           {question.blanks.map((blank, index) => {
+//             const userAnswer = droppedWords[blank.id];
+//             const isCorrect = userAnswer === blank.correctAnswer;
+//             return (
+//               <div key={blank.id} style={{ 
+//                 margin: '5px 0',
+//                 color: isCorrect ? '#16a34a' : '#dc2626'
+//               }}>
+//                 <strong>الفراغ {index + 1}:</strong> 
+//                 <span style={{ marginLeft: '10px' }}>
+//                   {userAnswer || 'لم يتم الإجابة'} 
+//                   {isCorrect ? ' ✓' : ` ✗ (الصحيح: ${blank.correctAnswer})`}
+//                 </span>
+//               </div>
+//             );
+//           })}
+//         </div>
+//       )}
 
-      <style jsx>{`
-        @keyframes blankHighlight {
-          0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-          }
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
-          }
-          100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-          }
-        }
+//       <style jsx>{`
+//         @keyframes blankHighlight {
+//           0% {
+//             transform: scale(1);
+//             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+//           }
+//           50% {
+//             transform: scale(1.05);
+//             box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
+//           }
+//           100% {
+//             transform: scale(1);
+//             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+//           }
+//         }
         
-        .fill-blank.empty:hover {
-          border-color: #3b82f6 !important;
-          background-color: #eff6ff !important;
-        }
+//         .fill-blank.empty:hover {
+//           border-color: #3b82f6 !important;
+//           background-color: #eff6ff !important;
+//         }
         
-        .draggable-word:hover {
-          transform: scale(1.05) !important;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
-        }
-      `}</style>
-    </div>
-  );
-});
+//         .draggable-word:hover {
+//           transform: scale(1.05) !important;
+//           box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+//         }
+//       `}</style>
+//     </div>
+//   );
+// });
 
 const ProtectionCivileQuizGame = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
@@ -398,7 +397,7 @@ const ProtectionCivileQuizGame = () => {
   const [playerName, setPlayerName] = useState('');
   const [tempPlayerName, setTempPlayerName] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [, setSelectedAnswer] = useState(null);
   const [badges, setBadges] = useState([]);
   const [answeredQuestions, setAnsweredQuestions] = useState({});
   const [imageZoom, setImageZoom] = useState(null);
@@ -422,16 +421,39 @@ const ProtectionCivileQuizGame = () => {
 
   // Optimisation: Debounce pour les clics rapides
   const [isProcessing, setIsProcessing] = useState(false);
+const getUserAnswerForQuestion = useCallback((questionIndex) => {
+  const questionData = answeredQuestions[questionIndex];
+  if (!questionData) return null;
+  
+  const question = categoryData?.questions[questionIndex];
+  
+  switch (question?.type) {
+    case 'fill-in-blanks':
+      return questionData.userAnswers;
+    case 'multiple-checkbox':
+      return questionData.selectedAnswers;
+    case 'drag-drop-timeline':
+    case 'reorder':
+      return questionData.userOrder;
+    case 'match-arrows':
+      return questionData.userMatches;
+    case 'true-false':
+    default:
+      return questionData.selectedAnswer;
+  }
+}, [answeredQuestions, categoryData]);
 
-  const handleAnswer = useCallback(async (answerData) => {
-    if (isProcessing || isQuestionAnswered) return;
-    
-    setIsProcessing(true);
-    
-    const question = getCurrentQuestion();
-    
-    // Pour les questions fill-in-blanks
-    if (question?.type === 'fill-in-blanks') {
+const handleAnswer = useCallback(async (answerData) => {
+  if (isProcessing || isQuestionAnswered) return;
+  
+  setIsProcessing(true);
+  
+  const question = getCurrentQuestion();
+  let pointsEarned = 0;
+  
+  // Gérer différents types de questions
+  switch (question?.type) {
+    case 'fill-in-blanks':
       setShowAnswer(true);
       
       let correctCount = 0;
@@ -442,14 +464,11 @@ const ProtectionCivileQuizGame = () => {
       });
       
       const percentage = correctCount / question.blanks.length;
-      let pointsEarned = 0;
       
       if (percentage === 1) {
-        // Toutes les réponses sont correctes
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
       } else if (percentage >= 0.7) {
-        // Au moins 70% de bonnes réponses
         pointsEarned = Math.floor(gameSettings.pointsPerCorrectAnswer * percentage);
       }
 
@@ -465,12 +484,12 @@ const ProtectionCivileQuizGame = () => {
           totalBlanks: question.blanks.length
         }
       }));
-    } else {
-      // Pour les questions normales
+      break;
+
+    case 'true-false':
       setSelectedAnswer(answerData);
       setShowAnswer(true);
 
-      let pointsEarned = 0;
       if (question && answerData === question.correct) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
@@ -486,18 +505,138 @@ const ProtectionCivileQuizGame = () => {
           pointsEarned: pointsEarned
         }
       }));
-    }
+      break;
 
-    // Vérifier les badges
-    const newScore = score + (answeredQuestions[currentQuestionIndex]?.pointsEarned || 0);
-    badgesList.forEach(badge => {
-      if (newScore >= badge.requirement && !badges.includes(badge.name)) {
-        setBadges(prev => [...prev, badge.name]);
+    case 'multiple-checkbox':
+      setShowAnswer(true);
+      
+      // Calculer le score basé sur les bonnes réponses
+      let correctSelections = 0;
+      // let totalCorrectOptions = question.options.filter(opt => opt.correct).length;
+      
+      question.options.forEach(option => {
+        const isSelected = answerData.includes(option.id);
+        if (option.correct && isSelected) {
+          correctSelections++;
+        } else if (!option.correct && !isSelected) {
+          correctSelections++;
+        }
+      });
+      
+      const accuracy = correctSelections / question.options.length;
+      if (accuracy >= 0.8) {
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = Math.floor((gameSettings.pointsPerCorrectAnswer * accuracy) + timeBonus);
+        setScore(prevScore => prevScore + pointsEarned);
       }
-    });
 
-    setTimeout(() => setIsProcessing(false), 300);
-  }, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing, answeredQuestions]);
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          selectedAnswers: answerData,
+          answered: true,
+          pointsEarned: pointsEarned,
+          correctSelections: correctSelections,
+          totalOptions: question.options.length
+        }
+      }));
+      break;
+
+    case 'drag-drop-timeline':
+    case 'reorder':
+      setShowAnswer(true);
+      
+      // Vérifier si l'ordre est correct - gérer les cas où answerData peut être null ou incomplet
+      let isOrderCorrect = false;
+      if (answerData && Array.isArray(answerData) && answerData.length === question.items.length) {
+        isOrderCorrect = answerData.every((item, index) => 
+          item && item.order === index + 1
+        );
+      }
+      
+      if (isOrderCorrect) {
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
+        setScore(prevScore => prevScore + pointsEarned);
+      }
+
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          userOrder: answerData || [],
+          answered: true,
+          pointsEarned: pointsEarned,
+          isCorrect: isOrderCorrect
+        }
+      }));
+      break;
+
+    case 'match-arrows':
+      setShowAnswer(true);
+      
+      // Calculer les bonnes correspondances - gérer les cas où answerData peut être null
+      let correctMatches = 0;
+      if (answerData && Array.isArray(answerData)) {
+        answerData.forEach(match => {
+          const isCorrect = question.correctMatches.some(
+            cm => cm.left === match.left && cm.right === match.right
+          );
+          if (isCorrect) correctMatches++;
+        });
+      }
+      
+      const matchAccuracy = question.correctMatches.length > 0 ? correctMatches / question.correctMatches.length : 0;
+      if (matchAccuracy === 1) {
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
+        setScore(prevScore => prevScore + pointsEarned);
+      }
+
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          userMatches: answerData || [],
+          answered: true,
+          pointsEarned: pointsEarned,
+          correctMatches: correctMatches,
+          totalMatches: question.correctMatches.length
+        }
+      }));
+      break;
+
+    default:
+      // Question QCM classique
+      setSelectedAnswer(answerData);
+      setShowAnswer(true);
+
+      if (question && answerData === question.correct) {
+        const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
+        pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
+        setScore(prevScore => prevScore + pointsEarned);
+      }
+
+      setAnsweredQuestions(prev => ({
+        ...prev,
+        [currentQuestionIndex]: {
+          selectedAnswer: answerData,
+          correct: question?.correct,
+          answered: true,
+          pointsEarned: pointsEarned
+        }
+      }));
+      break;
+  }
+
+  // Vérifier les badges
+  const newScore = score + pointsEarned;
+  badgesList.forEach(badge => {
+    if (newScore >= badge.requirement && !badges.includes(badge.name)) {
+      setBadges(prev => [...prev, badge.name]);
+    }
+  });
+
+  setTimeout(() => setIsProcessing(false), 300);
+}, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing]);
 
   // Timer logic
   useEffect(() => {
@@ -524,49 +663,63 @@ const ProtectionCivileQuizGame = () => {
     }
   }, [timeLeft, showAnswer, isQuestionAnswered, currentScreen, handleAnswer, getCurrentQuestion]);
 
-  const nextQuestion = useCallback(() => {
-    if (!categoryData) return;
+ const nextQuestion = useCallback(() => {
+  if (!categoryData) return;
+  
+  if (currentQuestionIndex < categoryData.questions.length - 1) {
+    const nextIndex = currentQuestionIndex + 1;
+    setCurrentQuestionIndex(nextIndex);
     
-    if (currentQuestionIndex < categoryData.questions.length - 1) {
-      const nextIndex = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(nextIndex);
-      
-      const nextQuestionData = answeredQuestions[nextIndex];
-      if (nextQuestionData?.answered) {
-        setShowAnswer(true);
-        if (nextQuestionData.selectedAnswer !== undefined) {
+    const nextQuestionData = answeredQuestions[nextIndex];
+    if (nextQuestionData?.answered) {
+      setShowAnswer(true);
+      // Gérer différents types de réponses selon le type de question
+      const nextQuestion = categoryData.questions[nextIndex];
+      switch (nextQuestion?.type) {
+        case 'true-false':
+        case 'qcm':
+        default:
           setSelectedAnswer(nextQuestionData.selectedAnswer);
-        }
-        setTimeLeft(0);
-      } else {
-        setTimeLeft(gameSettings.questionTime);
-        setShowAnswer(false);
-        setSelectedAnswer(null);
+          break;
+        // Pour les autres types, on ne définit pas selectedAnswer
       }
+      setTimeLeft(0);
     } else {
-      setCurrentScreen('results');
+      setTimeLeft(gameSettings.questionTime);
+      setShowAnswer(false);
+      setSelectedAnswer(null);
     }
-  }, [categoryData, currentQuestionIndex, answeredQuestions]);
+  } else {
+    setCurrentScreen('results');
+  }
+}, [categoryData, currentQuestionIndex, answeredQuestions]);
 
-  const previousQuestion = useCallback(() => {
-    if (currentQuestionIndex > 0) {
-      const prevIndex = currentQuestionIndex - 1;
-      setCurrentQuestionIndex(prevIndex);
-      
-      const prevQuestionData = answeredQuestions[prevIndex];
-      if (prevQuestionData?.answered) {
-        setShowAnswer(true);
-        if (prevQuestionData.selectedAnswer !== undefined) {
+ const previousQuestion = useCallback(() => {
+  if (currentQuestionIndex > 0) {
+    const prevIndex = currentQuestionIndex - 1;
+    setCurrentQuestionIndex(prevIndex);
+    
+    const prevQuestionData = answeredQuestions[prevIndex];
+    if (prevQuestionData?.answered) {
+      setShowAnswer(true);
+      // Gérer différents types de réponses selon le type de question
+      const prevQuestion = categoryData.questions[prevIndex];
+      switch (prevQuestion?.type) {
+        case 'true-false':
+        case 'qcm':
+        default:
           setSelectedAnswer(prevQuestionData.selectedAnswer);
-        }
-        setTimeLeft(0);
-      } else {
-        setShowAnswer(false);
-        setSelectedAnswer(null);
-        setTimeLeft(gameSettings.questionTime);
+          break;
+        // Pour les autres types, on ne définit pas selectedAnswer
       }
+      setTimeLeft(0);
+    } else {
+      setShowAnswer(false);
+      setSelectedAnswer(null);
+      setTimeLeft(gameSettings.questionTime);
     }
-  }, [currentQuestionIndex, answeredQuestions]);
+  }
+}, [currentQuestionIndex, answeredQuestions, categoryData]);
 
   const startGame = useCallback((category) => {
     setSelectedCategory(category);
@@ -819,68 +972,14 @@ const ProtectionCivileQuizGame = () => {
               )}
             </div>
 
-            {question.type === 'fill-in-blanks' ? (
-              <FillInBlanksQuestion
-                question={question}
-                onAnswer={handleAnswer}
-                showAnswer={showAnswer}
-                isQuestionAnswered={isQuestionAnswered}
-                userAnswers={answeredQuestions[currentQuestionIndex]?.userAnswers}
-              />
-            ) : (
-              <>
-                <h3 className="question-text-optimized">
-                  {question.question}
-                </h3>
-
-                {question.image && (
-                  <div className="question-image-container-compact">
-                    <picture>
-                      <source srcSet={`${process.env.PUBLIC_URL}${question.image}`} type="image/webp" />
-                      <img 
-                        src={`${process.env.PUBLIC_URL}${question.image.replace('.webp', '.jpg')}`}
-                        alt="سؤال عملي"
-                        className="question-image-compact"
-                        onClick={() => handleImageZoom(`${process.env.PUBLIC_URL}${question.image}`)}
-                        style={{ cursor: 'pointer' }}
-                        title="انقر للتكبير"
-                      />
-                    </picture>
-                    <div className="zoom-indicator-compact">
-                      <ZoomInOutlined />
-                    </div>
-                  </div>
-                )}
-
-                <div className="options-container-optimized">
-                  {question.options.map((option, index) => {
-                    let buttonClass = 'option-button-optimized smooth-transition';
-                    
-                    if (showAnswer) {
-                      if (index === question.correct) {
-                        buttonClass += ' correct';
-                      } else if (index === selectedAnswer && selectedAnswer !== question.correct) {
-                        buttonClass += ' wrong';
-                      }
-                    }
-
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => handleAnswer(index)}
-                        disabled={showAnswer || isQuestionAnswered || isProcessing}
-                        className={buttonClass}
-                      >
-                        <span className="option-letter-compact">
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                        <span className="option-text">{option}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+   <QuestionRenderer
+  question={question}
+  onAnswer={handleAnswer}
+  showAnswer={showAnswer}
+  isQuestionAnswered={isQuestionAnswered}
+  userAnswer={getUserAnswerForQuestion(currentQuestionIndex)}
+  handleImageZoom={handleImageZoom}
+/>
 
             {showAnswer && question.explanation && (
               <div className="explanation-card-compact">
