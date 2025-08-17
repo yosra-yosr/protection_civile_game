@@ -801,6 +801,16 @@ const handleAnswer = useCallback(async (answerData) => {
                   <p className="slogan-text">وقاية • نجدة • إنقاذ</p>
                 </div>
               </div>
+
+               <div className="logo-container">
+                <img
+                  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp`}
+                  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
+                  sizes="50vw"
+                  alt="Protection Civile Tunisie"
+                  className="logo"
+                />
+              </div>
             </div>
           </div>
 
