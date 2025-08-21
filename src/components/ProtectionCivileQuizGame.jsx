@@ -804,8 +804,8 @@ const handleAnswer = useCallback(async (answerData) => {
 
                <div className="logo-container">
                 <img
-                  src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp`}
-                  srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
+                  src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                  // srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
                   sizes="50vw"
                   alt="Protection Civile Tunisie"
                   className="logo"

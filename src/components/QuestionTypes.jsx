@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { CheckOutlined, CloseOutlined, DragOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 // Composant True/False Question

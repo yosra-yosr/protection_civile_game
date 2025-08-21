@@ -3546,21 +3546,25 @@ body::before {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #fff; /* Couleur de texte par défaut - gris foncé */
 }
 
 .checkbox-option.correct {
   background-color: #dcfce7;
   border-color: #16a34a;
+  color: #15803d; /* Texte vert foncé pour bon contraste */
 }
 
 .checkbox-option.wrong {
   background-color: #fef2f2;
   border-color: #dc2626;
+  color: #dc2626; /* Texte rouge foncé pour bon contraste */
 }
 
 .checkbox-option.missed {
   background-color: #fef3c7;
   border-color: #f59e0b;
+  color: #92400e; /* Texte orange/brun foncé pour bon contraste */
 }
 
 .checkbox-indicator {
@@ -3655,21 +3659,25 @@ body::before {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #fff; /* Couleur de texte par défaut - gris foncé */
 }
 
 .match-item.selected {
   border-color: #3b82f6;
   background-color: #eff6ff;
+  color: #1e40af; /* Texte bleu foncé sur fond bleu clair */
 }
 
 .match-item.correct {
   background-color: #dcfce7;
   border-color: #16a34a;
+  color: #15803d; /* Texte vert foncé pour bon contraste */
 }
 
 .match-item.wrong {
   background-color: #fef2f2;
   border-color: #dc2626;
+  color: #dc2626; /* Texte rouge foncé pour bon contraste */
 }
 
 /* Responsive */
