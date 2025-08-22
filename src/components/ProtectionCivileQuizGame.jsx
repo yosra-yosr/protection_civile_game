@@ -774,15 +774,17 @@ const handleAnswer = useCallback(async (answerData) => {
   const isSmallMobile = useMemo(() => window.innerWidth <= 480, []);
 
   // Home Screen
-  if (currentScreen === 'home') {
-    return (
-      <div className="quiz-container">
-        <div className="max-width">
-          <div className="header">
-            <div className="decorative-circle decorative-circle-blue"></div>
-            <div className="decorative-circle decorative-circle-green"></div>
-            
-            <div className="header-flex">
+if (currentScreen === 'home') {
+  return (
+    <div className="quiz-container">
+      <div className="max-width">
+        <div className="header">
+          <div className="decorative-circle decorative-circle-blue"></div>
+          <div className="decorative-circle decorative-circle-green"></div>
+          
+          <div className="header-flex">
+            {/* Conteneur des logos pour mobile */}
+            <div className="logos-mobile-container">
               <div className="logo-container">
                 <img
                   src={`${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp`}
@@ -793,120 +795,121 @@ const handleAnswer = useCallback(async (answerData) => {
                 />
               </div>
               
-              <div style={{flex: 1, textAlign: 'center', position: 'relative', zIndex: 2}}>
-                <h1 className="title">لعبة التطوع في خدمة الحماية المدنية</h1>
-                
-                <div className="slogan-container">
-                  <div className="slogan-bg"></div>
-                  <p className="slogan-text">وقاية • نجدة • إنقاذ</p>
-                </div>
-              </div>
-
-               <div className="logo-container">
+              <div className="logo-container">
                 <img
                   src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
-                  // srcSet={`${process.env.PUBLIC_URL}/protection_civile_Tunisie_petite.webp 480w, ${process.env.PUBLIC_URL}/protection_civile_Tunisie.webp 1080w`}
                   sizes="50vw"
                   alt="Protection Civile Tunisie"
                   className="logo"
                 />
               </div>
             </div>
-          </div>
-
-          {!playerName && (
-            <div className="card card-enhanced">
-              <div className="decorative-bg-primary"></div>
+            
+            {/* Conteneur du titre */}
+            <div className="title-container">
+              <h1 className="title">لعبة التطوع في خدمة الحماية المدنية</h1>
               
-              <h1 style={{
-                fontSize: isMobile ? '1.5rem' : '1.9rem', 
-                fontWeight: 'bold', 
-                background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textAlign: 'center', 
-                marginBottom: '28px',
-                textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
-                position: 'relative',
-                zIndex: 1
-              }}>أدخل اسمك للبدء</h1>
-              
-              <div className={`input-container ${isMobile ? 'mobile' : ''}`}>
-                <input
-                  type="text"
-                  placeholder="اسم المتطوع..."
-                  className="input-field focus-outline smooth-transition"
-                  value={tempPlayerName}
-                  onChange={(e) => setTempPlayerName(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
-                />
-                <button
-                  onClick={handleNameSubmit}
-                  disabled={!tempPlayerName.trim()}
-                  className="button-primary focus-outline"
-                >
-                  ابدأ
-                </button>
+              <div className="slogan-container">
+                <div className="slogan-bg"></div>
+                <p className="slogan-text">وقاية • نجدة • إنقاذ</p>
               </div>
             </div>
-          )}
-
-          {playerName && (
-            <>
-              <div className="welcome-card">
-                <p className="welcome-text">
-                  مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
-                </p>
-                <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
-              </div>
-
-              <div className={`grid-three ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
-                {Object.entries(questionCategories).map(([category, data]) => (
-                  <div
-                    key={category}
-                    onClick={() => startGame(category)}
-                    className="category-card smooth-transition hover-glow"
-                    style={{background: data.gradient}}
-                    data-category={category}
-                  >
-                    <div className="category-header">
-                      <span className="category-icon">{data.icon}</span>
-                      <AimOutlined style={{
-                        fontSize: isMobile ? '1.6rem' : '2rem', 
-                        opacity: 0.8,
-                        color: 'rgba(255, 255, 255, 0.9)'
-                      }} />
-                    </div>
-                    
-                    <h4 className="category-title">{category}</h4>
-                    <p className="category-description">
-                      {data.questions.length} سؤال
-                      {data.type === 'fill-in-blanks' && ' • املأ الفراغات'}
-                      {data.type === 'qcm' && ' • أسئلة متعددة الإختيارات'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {badges.length > 0 && (
-                <div className="badges-container">
-                  <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
-                  
-                  <div className="badges-list">
-                    {badges.map((badge, index) => (
-                      <div key={index} className="badge-item smooth-transition">
-                        <span className="badge-text">⭐ {badge}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+          </div>
         </div>
+
+        {!playerName && (
+          <div className="card card-enhanced">
+            <div className="decorative-bg-primary"></div>
+            
+            <h1 style={{
+              fontSize: isMobile ? '1.5rem' : '1.9rem', 
+              fontWeight: 'bold', 
+              background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textAlign: 'center', 
+              marginBottom: '28px',
+              textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+              position: 'relative',
+              zIndex: 1
+            }}>أدخل اسمك للبدء</h1>
+            
+            <div className={`input-container ${isMobile ? 'mobile' : ''}`}>
+              <input
+                type="text"
+                placeholder="اسم المتطوع..."
+                className="input-field focus-outline smooth-transition"
+                value={tempPlayerName}
+                onChange={(e) => setTempPlayerName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
+              />
+              <button
+                onClick={handleNameSubmit}
+                disabled={!tempPlayerName.trim()}
+                className="button-primary focus-outline"
+              >
+                ابدأ
+              </button>
+            </div>
+          </div>
+        )}
+
+        {playerName && (
+          <>
+            <div className="welcome-card">
+              <p className="welcome-text">
+                مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
+              </p>
+              <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
+            </div>
+
+            <div className={`grid-three ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
+              {Object.entries(questionCategories).map(([category, data]) => (
+                <div
+                  key={category}
+                  onClick={() => startGame(category)}
+                  className="category-card smooth-transition hover-glow"
+                  style={{background: data.gradient}}
+                  data-category={category}
+                >
+                  <div className="category-header">
+                    <span className="category-icon">{data.icon}</span>
+                    <AimOutlined style={{
+                      fontSize: isMobile ? '1.6rem' : '2rem', 
+                      opacity: 0.8,
+                      color: 'rgba(255, 255, 255, 0.9)'
+                    }} />
+                  </div>
+                  
+                  <h4 className="category-title">{category}</h4>
+                  <p className="category-description">
+                    {data.questions.length} سؤال
+                    {data.type === 'fill-in-blanks' && ' • املأ الفراغات'}
+                    {data.type === 'qcm' && ' • أسئلة متعددة الإختيارات'}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {badges.length > 0 && (
+              <div className="badges-container">
+                <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
+                
+                <div className="badges-list">
+                  {badges.map((badge, index) => (
+                    <div key={index} className="badge-item smooth-transition">
+                      <span className="badge-text">⭐ {badge}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // Quiz Screen
   if (currentScreen === 'quiz') {

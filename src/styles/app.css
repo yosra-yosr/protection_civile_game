@@ -490,7 +490,6 @@ body::before {
 }
 
 /* Suppression complète de toutes les animations float */
-
 .header-flex {
   display: flex;
   align-items: center;
@@ -587,6 +586,17 @@ body::before {
   letter-spacing: 0.02em;
 }
 
+/* Ajout des styles pour le conteneur des logos sur mobile */
+.logos-mobile-container {
+  display: contents; /* Sur desktop, agit comme si le conteneur n'existait pas */
+}
+
+.title-container {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
 /* Responsive ultra-optimisé */
 @media (max-width: 768px) {
   .header {
@@ -597,6 +607,20 @@ body::before {
   .header-flex {
     flex-direction: column;
     gap: 16px;
+  }
+  
+  /* Modification clé : affichage des logos côte à côte en haut */
+  .logos-mobile-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    order: -1; /* Place les logos en premier (en haut) */
+  }
+  
+  .title-container {
+    order: 1; /* Place le titre après les logos */
+    width: 100%;
   }
   
   .logo {
@@ -640,6 +664,31 @@ body::before {
   .header-flex {
     gap: 12px;
   }
+  
+  /* Logos encore plus proches sur très petits écrans */
+  .logos-mobile-container {
+    gap: 20px;
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .title {
+    font-size: 1.6rem;
+    line-height: 1.3;
+  }
+  
+  .slogan-text {
+    font-size: 1rem;
+    padding: 6px 16px;
+  }
+  
+  .decorative-circle {
+    display: none; /* Masquer complètement sur mobiles */
+  }
+
   
   .logo {
     width: 50px;
