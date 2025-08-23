@@ -1,4 +1,5 @@
-import React, { Suspense } from 'react';
+import React, { useEffect , Suspense } from 'react';
+import { initGA } from './utils/analytics';
 import './App.css';
 
 // Lazy loading des composants
@@ -445,6 +446,9 @@ const ErrorBoundary = React.memo(({ children }) => {
 });
 
 function App() {
+   useEffect(() => {
+    initGA();
+  }, []);
   return (
     <ErrorBoundary>
       <Suspense fallback={<GlobalLoadingSpinner />}>

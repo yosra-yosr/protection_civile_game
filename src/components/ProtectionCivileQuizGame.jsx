@@ -13,7 +13,17 @@ import { QuestionRenderer } from './QuestionTypes';
 // Lazy loading pour les données
 import { questionCategories, badges as badgesList, gameSettings } from './data.js';
 import '../styles/app.css';
-
+import { 
+  initGA, 
+  trackPlayerRegistration, 
+  trackCategorySelection, 
+  trackQuizStart, 
+  trackAnswer, 
+  trackQuizComplete, 
+  trackQuizExit, 
+  trackBadgeEarned,
+  trackQuizEvent
+} from '../utils/analytics.js';
 // Composant de chargement léger
 const LoadingSpinner = () => (
   <div style={{
@@ -108,286 +118,6 @@ const Modal = React.memo(({ isOpen, onClose, children }) => {
   );
 });
 
-// Composant pour les questions drag-and-drop
-// Composant pour les questions drag-and-drop avec scroll automatique
-// const FillInBlanksQuestion = React.memo(({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
-//   const [draggedWord, setDraggedWord] = useState(null);
-//   const [droppedWords, setDroppedWords] = useState({});
-//   const [availableWords, setAvailableWords] = useState([...question.words]);
-  
-//   // Référence pour le conteneur du paragraphe
-//   const paragraphRef = useRef(null);
-  
-//   // Fonction pour faire défiler vers un élément
-//   const scrollToBlank = useCallback((blankElement) => {
-//     if (!blankElement) return;
-    
-//     const rect = blankElement.getBoundingClientRect();
-//     const isVisible = (
-//       rect.top >= 0 &&
-//       rect.left >= 0 &&
-//       rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-//       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-//     );
-    
-//     // Si l'élément n'est pas visible, faire défiler
-//     if (!isVisible) {
-//       blankElement.scrollIntoView({
-//         behavior: 'smooth',
-//         block: 'center',
-//         inline: 'nearest'
-//       });
-//     }
-//   }, []);
-  
-//   // Réinitialiser les mots à chaque changement de question
-//   useEffect(() => {
-//     if (userAnswers && Object.keys(userAnswers).length > 0) {
-//       setDroppedWords(userAnswers);
-//       const usedWords = Object.values(userAnswers);
-//       setAvailableWords(question.words.filter(word => !usedWords.includes(word)));
-//     } else {
-//       // Réinitialiser complètement pour une nouvelle question
-//       setDroppedWords({});
-//       setAvailableWords([...question.words]);
-//     }
-//   }, [userAnswers, question.words, question.question]);
-
-//   const handleDragStart = (e, word) => {
-//     setDraggedWord(word);
-//     e.dataTransfer.effectAllowed = 'move';
-//   };
-
-//   const handleDragOver = (e) => {
-//     e.preventDefault();
-//     e.dataTransfer.dropEffect = 'move';
-//   };
-
-//   const handleDrop = (e, blankId) => {
-//     e.preventDefault();
-    
-//     if (!draggedWord || showAnswer || isQuestionAnswered) return;
-
-//     const newDroppedWords = { ...droppedWords };
-//     const newAvailableWords = [...availableWords];
-
-//     // Si il y a déjà un mot dans cette case, le remettre dans les mots disponibles
-//     if (newDroppedWords[blankId]) {
-//       newAvailableWords.push(newDroppedWords[blankId]);
-//     }
-
-//     // Placer le nouveau mot
-//     newDroppedWords[blankId] = draggedWord;
-    
-//     // Retirer le mot de la liste disponible
-//     const wordIndex = newAvailableWords.indexOf(draggedWord);
-//     if (wordIndex > -1) {
-//       newAvailableWords.splice(wordIndex, 1);
-//     }
-
-//     setDroppedWords(newDroppedWords);
-//     setAvailableWords(newAvailableWords);
-//     setDraggedWord(null);
-
-//     // Scroll automatique vers le champ qui vient d'être rempli
-//     setTimeout(() => {
-//       const blankElement = e.target;
-//       scrollToBlank(blankElement);
-//     }, 100);
-
-//     // Vérifier si toutes les cases sont remplies
-//     if (Object.keys(newDroppedWords).length === question.blanks.length) {
-//       onAnswer(newDroppedWords);
-//     }
-//   };
-
-//   const removeWordFromBlank = (blankId) => {
-//     if (showAnswer || isQuestionAnswered) return;
-
-//     const word = droppedWords[blankId];
-//     if (word) {
-//       const newDroppedWords = { ...droppedWords };
-//       delete newDroppedWords[blankId];
-      
-//       const newAvailableWords = [...availableWords, word];
-      
-//       setDroppedWords(newDroppedWords);
-//       setAvailableWords(newAvailableWords);
-//     }
-//   };
-
-//   const renderParagraphWithBlanks = () => {
-//     let paragraphParts = question.paragraph.split('_____');
-//     let result = [];
-
-//     paragraphParts.forEach((part, index) => {
-//       result.push(<span key={`text-${index}`}>{part}</span>);
-      
-//       if (index < paragraphParts.length - 1) {
-//         const blankId = index;
-//         const isCorrect = showAnswer && droppedWords[blankId] === question.blanks[blankId].correctAnswer;
-//         const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== question.blanks[blankId].correctAnswer;
-        
-//         result.push(
-//           <span
-//             key={`blank-${blankId}`}
-//             className={`fill-blank ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''} ${!droppedWords[blankId] ? 'empty' : ''}`}
-//             onDragOver={handleDragOver}
-//             onDrop={(e) => handleDrop(e, blankId)}
-//             onClick={() => removeWordFromBlank(blankId)}
-//             data-blank-id={blankId}
-//             style={{
-//               display: 'inline-block',
-//               minWidth: '120px',
-//               minHeight: '35px',
-//               border: '2px dashed #ccc',
-//               borderRadius: '8px',
-//               margin: '0 5px',
-//               padding: '5px 10px',
-//               textAlign: 'center',
-//               backgroundColor: isCorrect ? '#dcfce7' : isWrong ? '#fef2f2' : droppedWords[blankId] ? '#f3f4f6' : '#f9fafb',
-//               borderColor: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : droppedWords[blankId] ? '#6b7280' : '#d1d5db',
-//               cursor: droppedWords[blankId] && !showAnswer ? 'pointer' : 'default',
-//               transition: 'all 0.2s ease',
-//               // Animation de highlight lors du drop
-//               animation: droppedWords[blankId] && !showAnswer ? 'blankHighlight 0.5s ease-out' : 'none'
-//             }}
-//             title={droppedWords[blankId] && !showAnswer ? 'انقر لإزالة الكلمة' : ''}
-//           >
-//             {showAnswer && !droppedWords[blankId] ? (
-//               <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
-//                 {question.blanks[blankId].correctAnswer}
-//               </span>
-//             ) : (
-//               droppedWords[blankId] || ''
-//             )}
-//           </span>
-//         );
-//       }
-//     });
-
-//     return result;
-//   };
-
-//   return (
-//     <div className="fill-in-blanks-container">
-//       <div 
-//         ref={paragraphRef}
-//         className="paragraph-container" 
-//         style={{ 
-//           fontSize: '1.1rem', 
-//           lineHeight: '2.2', 
-//           marginBottom: '30px',
-//           padding: '20px',
-//           backgroundColor: '#f8fafc',
-//           borderRadius: '12px',
-//           border: '1px solid #e2e8f0'
-//         }}
-//       >
-//         {renderParagraphWithBlanks()}
-//       </div>
-
-//       {!showAnswer && !isQuestionAnswered && availableWords.length > 0 && (
-//         <div className="words-container" style={{
-//           display: 'flex',
-//           flexWrap: 'wrap',
-//           gap: '10px',
-//           justifyContent: 'center',
-//           padding: '20px',
-//           backgroundColor: '#f1f5f9',
-//           borderRadius: '12px',
-//           border: '2px dashed #cbd5e1'
-//         }}>
-//           <div style={{ width: '100%', textAlign: 'center', marginBottom: '10px', color: '#64748b', fontSize: '0.9rem' }}>
-//             اسحب الكلمات إلى أماكنها الصحيحة
-//           </div>
-//           {availableWords.map((word, index) => (
-//             <div
-//               key={`${word}-${index}`}
-//               draggable
-//               onDragStart={(e) => handleDragStart(e, word)}
-//               className="draggable-word"
-//               style={{
-//                 padding: '8px 16px',
-//                 backgroundColor: '#ffffff',
-//                 border: '2px solid #3b82f6',
-//                 borderRadius: '20px',
-//                 cursor: 'grab',
-//                 userSelect: 'none',
-//                 fontSize: '0.95rem',
-//                 fontWeight: '500',
-//                 color: '#1e40af',
-//                 transition: 'all 0.2s ease',
-//                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-//                 transform: draggedWord === word ? 'scale(0.95)' : 'scale(1)'
-//               }}
-//               onMouseDown={(e) => e.target.style.cursor = 'grabbing'}
-//               onMouseUp={(e) => e.target.style.cursor = 'grab'}
-//             >
-//               {word}
-//             </div>
-//           ))}
-//         </div>
-//       )}
-
-//       {showAnswer && (
-//         <div className="fill-blanks-results" style={{
-//           marginTop: '20px',
-//           padding: '15px',
-//           backgroundColor: '#f0f9ff',
-//           borderRadius: '8px',
-//           border: '1px solid #0ea5e9'
-//         }}>
-//           <h4 style={{ color: '#0369a1', marginBottom: '10px' }}>النتيجة:</h4>
-//           {question.blanks.map((blank, index) => {
-//             const userAnswer = droppedWords[blank.id];
-//             const isCorrect = userAnswer === blank.correctAnswer;
-//             return (
-//               <div key={blank.id} style={{ 
-//                 margin: '5px 0',
-//                 color: isCorrect ? '#16a34a' : '#dc2626'
-//               }}>
-//                 <strong>الفراغ {index + 1}:</strong> 
-//                 <span style={{ marginLeft: '10px' }}>
-//                   {userAnswer || 'لم يتم الإجابة'} 
-//                   {isCorrect ? ' ✓' : ` ✗ (الصحيح: ${blank.correctAnswer})`}
-//                 </span>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       )}
-
-//       <style jsx>{`
-//         @keyframes blankHighlight {
-//           0% {
-//             transform: scale(1);
-//             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-//           }
-//           50% {
-//             transform: scale(1.05);
-//             box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
-//           }
-//           100% {
-//             transform: scale(1);
-//             box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-//           }
-//         }
-        
-//         .fill-blank.empty:hover {
-//           border-color: #3b82f6 !important;
-//           background-color: #eff6ff !important;
-//         }
-        
-//         .draggable-word:hover {
-//           transform: scale(1.05) !important;
-//           box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
-//         }
-//       `}</style>
-//     </div>
-//   );
-// });
-
 const ProtectionCivileQuizGame = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -402,6 +132,9 @@ const ProtectionCivileQuizGame = () => {
   const [answeredQuestions, setAnsweredQuestions] = useState({});
   const [imageZoom, setImageZoom] = useState(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+ useEffect(() => {
+    initGA();
+  }, []);
 
   // Optimisation: Mémoriser la question actuelle
   const getCurrentQuestion = useCallback(() => {
@@ -450,7 +183,8 @@ const handleAnswer = useCallback(async (answerData) => {
   
   const question = getCurrentQuestion();
   let pointsEarned = 0;
-  
+   let isCorrect = false;
+
   // Gérer différents types de questions
   switch (question?.type) {
     case 'fill-in-blanks':
@@ -464,7 +198,7 @@ const handleAnswer = useCallback(async (answerData) => {
       });
       
       const percentage = correctCount / question.blanks.length;
-      
+       isCorrect = percentage === 1;
       if (percentage === 1) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
@@ -489,6 +223,7 @@ const handleAnswer = useCallback(async (answerData) => {
     case 'true-false':
       setSelectedAnswer(answerData);
       setShowAnswer(true);
+isCorrect = question && answerData === question.correct; // NOUVEAU
 
       if (question && answerData === question.correct) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
@@ -524,6 +259,7 @@ const handleAnswer = useCallback(async (answerData) => {
       });
       
       const accuracy = correctSelections / question.options.length;
+      isCorrect = accuracy >= 0.8; 
       if (accuracy >= 0.8) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = Math.floor((gameSettings.pointsPerCorrectAnswer * accuracy) + timeBonus);
@@ -553,7 +289,8 @@ const handleAnswer = useCallback(async (answerData) => {
           item && item.order === index + 1
         );
       }
-      
+       isCorrect = isOrderCorrect; 
+
       if (isOrderCorrect) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
@@ -578,14 +315,15 @@ const handleAnswer = useCallback(async (answerData) => {
       let correctMatches = 0;
       if (answerData && Array.isArray(answerData)) {
         answerData.forEach(match => {
-          const isCorrect = question.correctMatches.some(
+          const isMatchCorrect = question.correctMatches.some(
             cm => cm.left === match.left && cm.right === match.right
           );
-          if (isCorrect) correctMatches++;
+          if (isMatchCorrect) correctMatches++;
         });
       }
       
       const matchAccuracy = question.correctMatches.length > 0 ? correctMatches / question.correctMatches.length : 0;
+     isCorrect = matchAccuracy === 1; 
       if (matchAccuracy === 1) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
@@ -608,8 +346,9 @@ const handleAnswer = useCallback(async (answerData) => {
       // Question QCM classique
       setSelectedAnswer(answerData);
       setShowAnswer(true);
+ isCorrect = question && answerData === question.correct; // NOUVEAU
 
-      if (question && answerData === question.correct) {
+      if (isCorrect) {
         const timeBonus = Math.floor(timeLeft / gameSettings.timeBonusMultiplier);
         pointsEarned = gameSettings.pointsPerCorrectAnswer + timeBonus;
         setScore(prevScore => prevScore + pointsEarned);
@@ -626,17 +365,24 @@ const handleAnswer = useCallback(async (answerData) => {
       }));
       break;
   }
-
+ trackAnswer(
+      selectedCategory, 
+      currentQuestionIndex, 
+      isCorrect, 
+      timeLeft, 
+      question?.type || 'qcm'
+    );
   // Vérifier les badges
   const newScore = score + pointsEarned;
   badgesList.forEach(badge => {
     if (newScore >= badge.requirement && !badges.includes(badge.name)) {
       setBadges(prev => [...prev, badge.name]);
+       trackBadgeEarned(badge.name);
     }
   });
 
   setTimeout(() => setIsProcessing(false), 300);
-}, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing]);
+}, [getCurrentQuestion, timeLeft, score, badges, currentQuestionIndex, isQuestionAnswered, isProcessing, selectedCategory]);
 
   // Timer logic
   useEffect(() => {
@@ -664,64 +410,91 @@ const handleAnswer = useCallback(async (answerData) => {
   }, [timeLeft, showAnswer, isQuestionAnswered, currentScreen, handleAnswer, getCurrentQuestion]);
 
  const nextQuestion = useCallback(() => {
-  if (!categoryData) return;
-  
-  if (currentQuestionIndex < categoryData.questions.length - 1) {
-    const nextIndex = currentQuestionIndex + 1;
-    setCurrentQuestionIndex(nextIndex);
+    if (!categoryData) return;
     
-    const nextQuestionData = answeredQuestions[nextIndex];
-    if (nextQuestionData?.answered) {
-      setShowAnswer(true);
-      // Gérer différents types de réponses selon le type de question
-      const nextQuestion = categoryData.questions[nextIndex];
-      switch (nextQuestion?.type) {
-        case 'true-false':
-        case 'qcm':
-        default:
-          setSelectedAnswer(nextQuestionData.selectedAnswer);
-          break;
-        // Pour les autres types, on ne définit pas selectedAnswer
+    if (currentQuestionIndex < categoryData.questions.length - 1) {
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      
+      const nextQuestionData = answeredQuestions[nextIndex];
+      if (nextQuestionData?.answered) {
+        setShowAnswer(true);
+        const nextQuestion = categoryData.questions[nextIndex];
+        switch (nextQuestion?.type) {
+          case 'true-false':
+          case 'qcm':
+          default:
+            setSelectedAnswer(nextQuestionData.selectedAnswer);
+            break;
+        }
+        setTimeLeft(0);
+      } else {
+        setTimeLeft(gameSettings.questionTime);
+        setShowAnswer(false);
+        setSelectedAnswer(null);
       }
-      setTimeLeft(0);
     } else {
-      setTimeLeft(gameSettings.questionTime);
-      setShowAnswer(false);
-      setSelectedAnswer(null);
+      // NOUVEAU: Quiz terminé - calculer et tracker les résultats
+      let correctAnswers = 0;
+      let totalPossiblePoints = 0;
+      
+      Object.entries(answeredQuestions).forEach(([questionIndex, questionData]) => {
+        if (!questionData.answered) return;
+        
+        const question = categoryData?.questions[parseInt(questionIndex)];
+        
+        if (question?.type === 'fill-in-blanks') {
+          totalPossiblePoints += question.blanks.length;
+          correctAnswers += questionData.correctCount || 0;
+        } else {
+          totalPossiblePoints += 1;
+          if (questionData.selectedAnswer === question?.correct) {
+            correctAnswers += 1;
+          }
+        }
+      });
+      
+      const percentage = totalPossiblePoints > 0 ? Math.round((correctAnswers / totalPossiblePoints) * 100) : 0;
+      
+      // Tracker la completion du quiz
+      trackQuizComplete(selectedCategory, score, totalPossiblePoints, correctAnswers, percentage);
+      
+      setCurrentScreen('results');
     }
-  } else {
-    setCurrentScreen('results');
-  }
-}, [categoryData, currentQuestionIndex, answeredQuestions]);
+  }, [categoryData, currentQuestionIndex, answeredQuestions, selectedCategory, score]);
 
  const previousQuestion = useCallback(() => {
-  if (currentQuestionIndex > 0) {
-    const prevIndex = currentQuestionIndex - 1;
-    setCurrentQuestionIndex(prevIndex);
-    
-    const prevQuestionData = answeredQuestions[prevIndex];
-    if (prevQuestionData?.answered) {
-      setShowAnswer(true);
-      // Gérer différents types de réponses selon le type de question
-      const prevQuestion = categoryData.questions[prevIndex];
-      switch (prevQuestion?.type) {
-        case 'true-false':
-        case 'qcm':
-        default:
-          setSelectedAnswer(prevQuestionData.selectedAnswer);
-          break;
-        // Pour les autres types, on ne définit pas selectedAnswer
+    if (currentQuestionIndex > 0) {
+      // NOUVEAU: Tracker la navigation précédente
+      trackQuizEvent('navigation_previous', selectedCategory, {
+        custom_from_question: currentQuestionIndex + 1,
+        custom_to_question: currentQuestionIndex
+      });
+      
+      const prevIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(prevIndex);
+      
+      const prevQuestionData = answeredQuestions[prevIndex];
+      if (prevQuestionData?.answered) {
+        setShowAnswer(true);
+        const prevQuestion = categoryData.questions[prevIndex];
+        switch (prevQuestion?.type) {
+          case 'true-false':
+          case 'qcm':
+          default:
+            setSelectedAnswer(prevQuestionData.selectedAnswer);
+            break;
+        }
+        setTimeLeft(0);
+      } else {
+        setShowAnswer(false);
+        setSelectedAnswer(null);
+        setTimeLeft(gameSettings.questionTime);
       }
-      setTimeLeft(0);
-    } else {
-      setShowAnswer(false);
-      setSelectedAnswer(null);
-      setTimeLeft(gameSettings.questionTime);
     }
-  }
-}, [currentQuestionIndex, answeredQuestions, categoryData]);
+  }, [currentQuestionIndex, answeredQuestions, categoryData, selectedCategory]);
 
-  const startGame = useCallback((category) => {
+ const startGame = useCallback((category) => {
     setSelectedCategory(category);
     setCurrentQuestionIndex(0);
     setScore(0);
@@ -730,9 +503,19 @@ const handleAnswer = useCallback(async (answerData) => {
     setSelectedAnswer(null);
     setAnsweredQuestions({});
     setCurrentScreen('quiz');
+    
+    // NOUVEAU: Tracker la sélection de catégorie et le début du quiz
+    trackCategorySelection(category);
+    const categoryData = questionCategories[category];
+    if (categoryData) {
+      trackQuizStart(category, categoryData.questions.length);
+    }
   }, []);
 
   const resetGame = useCallback(() => {
+     trackQuizEvent('back_to_home', selectedCategory, {
+      custom_final_score: score
+    });
     setCurrentScreen('home');
     setSelectedCategory(null);
     setCurrentQuestionIndex(0);
@@ -741,17 +524,23 @@ const handleAnswer = useCallback(async (answerData) => {
     setAnsweredQuestions({});
     setImageZoom(null);
     setShowExitConfirm(false);
-  }, []);
+  }, [score,selectedCategory]);
 
   const handleNameSubmit = useCallback(() => {
     if (tempPlayerName.trim()) {
       setPlayerName(tempPlayerName.trim());
+      // NOUVEAU: Tracker l'enregistrement du joueur
+      trackPlayerRegistration(tempPlayerName.trim());
     }
   }, [tempPlayerName]);
 
-  const handleImageZoom = useCallback((imageSrc) => {
+ const handleImageZoom = useCallback((imageSrc) => {
     setImageZoom(imageSrc);
-  }, []);
+    // NOUVEAU: Tracker l'utilisation du zoom
+    trackQuizEvent('image_zoom', selectedCategory, {
+      custom_question_index: currentQuestionIndex + 1
+    });
+  }, [selectedCategory, currentQuestionIndex]);
 
   const closeImageZoom = useCallback(() => {
     setImageZoom(null);
@@ -761,10 +550,13 @@ const handleAnswer = useCallback(async (answerData) => {
     setShowExitConfirm(true);
   }, []);
 
-  const confirmExitQuiz = useCallback(() => {
+const confirmExitQuiz = useCallback(() => {
+    // NOUVEAU: Tracker l'abandon du quiz
+    trackQuizExit(selectedCategory, currentQuestionIndex, score);
     setShowExitConfirm(false);
     resetGame();
-  }, [resetGame]);
+  }, [resetGame, selectedCategory, currentQuestionIndex, score]);
+
 
   const cancelExitQuiz = useCallback(() => {
     setShowExitConfirm(false);
