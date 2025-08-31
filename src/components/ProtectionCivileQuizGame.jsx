@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   TrophyOutlined, 
-  ClockCircleOutlined,  
-  AimOutlined, 
+  ClockCircleOutlined, 
   RightOutlined,
   LeftOutlined,
   HomeOutlined,
   ReloadOutlined,
-  CloseOutlined
+  CloseOutlined,
 } from '@ant-design/icons';
 import { QuestionRenderer } from './QuestionTypes';
 // Lazy loading pour les données
-import { questionCategories, badges as badgesList, gameSettings } from './data.js';
+import { domains, badges as badgesList, gameSettings, playerProgress } from './data.js';
 import '../styles/app.css';
 import { 
   initGA, 
@@ -132,20 +131,37 @@ const ProtectionCivileQuizGame = () => {
   const [answeredQuestions, setAnsweredQuestions] = useState({});
   const [imageZoom, setImageZoom] = useState(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState(null);
+const [playerProgressData, setPlayerProgressData] = useState({ domains: {} });
  useEffect(() => {
     initGA();
   }, []);
 
   // Optimisation: Mémoriser la question actuelle
-  const getCurrentQuestion = useCallback(() => {
-    if (!selectedCategory) return null;
-    return questionCategories[selectedCategory]?.questions[currentQuestionIndex];
-  }, [selectedCategory, currentQuestionIndex]);
-
+const getCurrentQuestion = useCallback(() => {
+  if (!selectedCategory || !selectedDomain) return null;
+  return domains[selectedDomain]?.categories[selectedCategory]?.questions[currentQuestionIndex];
+}, [selectedCategory, selectedDomain, currentQuestionIndex]);
   // Optimisation: Mémoriser les données de catégorie
-  const categoryData = useMemo(() => {
-    return selectedCategory ? questionCategories[selectedCategory] : null;
-  }, [selectedCategory]);
+ const categoryData = useMemo(() => {
+  return selectedCategory && selectedDomain ? domains[selectedDomain]?.categories[selectedCategory] : null;
+}, [selectedCategory, selectedDomain]);
+
+const updatePlayerProgress = useCallback((domainKey, categoryName, score, percentage) => {
+  setPlayerProgressData(prev => {
+    const newProgress = { ...prev };
+    if (!newProgress.domains[domainKey]) {
+      newProgress.domains[domainKey] = {};
+    }
+    newProgress.domains[domainKey][categoryName] = {
+      completed: percentage >= 60, // ou votre seuil de réussite
+      score,
+      percentage
+    };
+    return newProgress;
+  });
+}, []);
+
 
   // Optimisation: Mémoriser si la question est répondue
   const isQuestionAnswered = useMemo(() => {
@@ -456,12 +472,21 @@ isCorrect = question && answerData === question.correct; // NOUVEAU
       
       const percentage = totalPossiblePoints > 0 ? Math.round((correctAnswers / totalPossiblePoints) * 100) : 0;
       
+      updatePlayerProgress(selectedDomain, selectedCategory, score, percentage);
+      const domainProgress = playerProgress.getDomainProgress(selectedDomain, playerProgressData);
+if (domainProgress.percentage === 100) {
+  const domainBadge = badgesList.find(b => b.requirement === `complete_${domains[selectedDomain].id}_domain`);
+  if (domainBadge && !badges.includes(domainBadge.name)) {
+    setBadges(prev => [...prev, domainBadge.name]);
+    trackBadgeEarned(domainBadge.name);
+  }
+}
       // Tracker la completion du quiz
       trackQuizComplete(selectedCategory, score, totalPossiblePoints, correctAnswers, percentage);
       
       setCurrentScreen('results');
     }
-  }, [categoryData, currentQuestionIndex, answeredQuestions, selectedCategory, score]);
+  }, [categoryData, currentQuestionIndex, answeredQuestions, selectedCategory, score,badges,playerProgressData,selectedDomain,updatePlayerProgress]);
 
  const previousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
@@ -494,8 +519,9 @@ isCorrect = question && answerData === question.correct; // NOUVEAU
     }
   }, [currentQuestionIndex, answeredQuestions, categoryData, selectedCategory]);
 
- const startGame = useCallback((category) => {
-    setSelectedCategory(category);
+ const startGame = useCallback((domainKey, category) => {
+  setSelectedDomain(domainKey);
+  setSelectedCategory(category);
     setCurrentQuestionIndex(0);
     setScore(0);
     setTimeLeft(gameSettings.questionTime);
@@ -505,26 +531,27 @@ isCorrect = question && answerData === question.correct; // NOUVEAU
     setCurrentScreen('quiz');
     
     // NOUVEAU: Tracker la sélection de catégorie et le début du quiz
-    trackCategorySelection(category);
-    const categoryData = questionCategories[category];
-    if (categoryData) {
-      trackQuizStart(category, categoryData.questions.length);
-    }
+   trackCategorySelection(`${domainKey}-${category}`);
+  const categoryData = domains[domainKey].categories[category];
+  if (categoryData) {
+    trackQuizStart(`${domainKey}-${category}`, categoryData.questions.length);
+  }
   }, []);
 
   const resetGame = useCallback(() => {
-     trackQuizEvent('back_to_home', selectedCategory, {
-      custom_final_score: score
-    });
-    setCurrentScreen('home');
-    setSelectedCategory(null);
+    trackQuizEvent('back_to_home', selectedDomain ? `${selectedDomain}-${selectedCategory}` : selectedCategory, {
+    custom_final_score: score
+  });
+  setCurrentScreen('home');
+  setSelectedDomain(null); // Ajouter cette ligne
+  setSelectedCategory(null);
     setCurrentQuestionIndex(0);
     setScore(0);
     setBadges([]);
     setAnsweredQuestions({});
     setImageZoom(null);
     setShowExitConfirm(false);
-  }, [score,selectedCategory]);
+  }, [score,selectedDomain,selectedCategory]);
 
   const handleNameSubmit = useCallback(() => {
     if (tempPlayerName.trim()) {
@@ -655,33 +682,65 @@ if (currentScreen === 'home') {
               <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
             </div>
 
-            <div className={`grid-three ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
-              {Object.entries(questionCategories).map(([category, data]) => (
-                <div
-                  key={category}
-                  onClick={() => startGame(category)}
-                  className="category-card smooth-transition hover-glow"
-                  style={{background: data.gradient}}
-                  data-category={category}
-                >
-                  <div className="category-header">
-                    <span className="category-icon">{data.icon}</span>
-                    <AimOutlined style={{
-                      fontSize: isMobile ? '1.6rem' : '2rem', 
-                      opacity: 0.8,
-                      color: 'rgba(255, 255, 255, 0.9)'
-                    }} />
+          
+<div className="domains-container">
+  {Object.entries(domains)
+    .sort(([,a], [,b]) => a.order - b.order)
+    .map(([domainKey, domainData]) => {
+      const isUnlocked = playerProgress.isDomainUnlocked(domainData.id, playerProgressData);
+      const progress = playerProgress.getDomainProgress(domainKey, playerProgressData);
+      
+      return (
+        <div key={domainKey} className="domain-section">
+          <div className={`domain-header ${!isUnlocked ? 'locked' : ''}`}>
+            <div className="domain-info">
+              <span className="domain-icon">{domainData.icon}</span>
+              <div>
+                <h3 className="domain-title">{domainKey}</h3>
+                <p className="domain-description">{domainData.description}</p>
+                {progress.total > 0 && (
+                  <div className="domain-progress">
+                    التقدم: {progress.completed}/{progress.total} ({progress.percentage}%)
                   </div>
-                  
-                  <h4 className="category-title">{category}</h4>
-                  <p className="category-description">
-                    {data.questions.length} سؤال
-                    {data.type === 'fill-in-blanks' && ' • املأ الفراغات'}
-                    {data.type === 'qcm' && ' • أسئلة متعددة الإختيارات'}
-                  </p>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
+            {!isUnlocked && <span className="lock-icon">🔒</span>}
+          </div>
+          
+          {isUnlocked && (
+            <div className={`categories-grid ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
+              {Object.entries(domainData.categories).map(([categoryName, categoryData]) => {
+                const categoryProgress = playerProgressData.domains?.[domainKey]?.[categoryName];
+                
+                return (
+                  <div
+                    key={categoryName}
+                    onClick={() => startGame(domainKey, categoryName)}
+                    className="category-card smooth-transition hover-glow"
+                    style={{background: categoryData.gradient}}
+                  >
+                    <div className="category-header">
+                      <span className="category-icon">{categoryData.icon}</span>
+                      {categoryProgress?.completed && <span className="completed-badge">✓</span>}
+                    </div>
+                    
+                    <h4 className="category-title">{categoryName}</h4>
+                    <p className="category-description">
+                      {categoryData.questions.length} سؤال
+                      {categoryProgress && (
+                        <span className="category-score"> • {categoryProgress.percentage}%</span>
+                      )}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    })}
+</div>
 
             {badges.length > 0 && (
               <div className="badges-container">
