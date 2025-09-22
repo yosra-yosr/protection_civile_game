@@ -41,7 +41,7 @@ body::before {
 
 .quiz-container {
   min-height: 100vh;
-  display: flex;
+  display: contents;
   flex-direction: column;
   contain: layout style paint; /* Optimisation containment */
 }
@@ -463,8 +463,6 @@ body::before {
   opacity: 0.8;
 }
 
-/* Suppression complète des animations de fond */
-
 /* Cercles décoratifs ultra-simplifiés - suppression des animations */
 .decorative-circle {
   position: absolute;
@@ -517,7 +515,6 @@ body::before {
   z-index: -1;
 }
 
-/* Suppression de toutes les animations hover */
 
 .logo {
   width: 70px; /* Réduit */
@@ -572,7 +569,6 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Suppression complète de toutes les animations glow */
 
 .slogan-text {
   position: relative;
