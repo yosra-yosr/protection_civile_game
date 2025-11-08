@@ -499,17 +499,28 @@ export const ReorderQuestion = ({ question, onAnswer, showAnswer, isQuestionAnsw
   const [availableItems, setAvailableItems] = useState([]);
 
   useEffect(() => {
+    // IMPORTANT: Pour le type "reorder", les items sont dans question.details.items
+    const items = question?.details?.items || question?.items;
+    
+    // Vérification de sécurité : s'assurer que items existe et est un tableau
+    if (!items || !Array.isArray(items)) {
+      console.error('Les items de la question ne sont pas définis ou ne sont pas un tableau:', question);
+      setOrderedItems([]);
+      setAvailableItems([]);
+      return;
+    }
+
     if (userOrder && userOrder.length > 0) {
       setOrderedItems(userOrder);
       const usedIds = userOrder.map(item => item?.id).filter(Boolean);
-      const remaining = question.items.filter(item => !usedIds.includes(item.id));
+      const remaining = items.filter(item => !usedIds.includes(item.id));
       setAvailableItems(remaining);
     } else {
-      const shuffled = [...question.items].sort(() => Math.random() - 0.5);
+      const shuffled = [...items].sort(() => Math.random() - 0.5);
       setAvailableItems(shuffled);
-      setOrderedItems(new Array(question.items.length).fill(null));
+      setOrderedItems(new Array(items.length).fill(null));
     }
-  }, [question.question, question.items, userOrder]); // Ajouter question.question
+  }, [question.question, question.details, question.items, userOrder]);
 
   const handleDragStart = (e, item) => {
     if (showAnswer || isQuestionAnswered) return;
@@ -573,6 +584,23 @@ export const ReorderQuestion = ({ question, onAnswer, showAnswer, isQuestionAnsw
       onAnswer(orderedItems);
     }
   }, [showAnswer, isQuestionAnswered, orderedItems, onAnswer]);
+
+  // Récupérer les items depuis la bonne source
+  const items = question?.details?.items || question?.items;
+  
+  // Afficher un message d'erreur si les données ne sont pas valides
+  if (!items || !Array.isArray(items)) {
+    return (
+      <div className="reorder-container">
+        <h3 className="question-text-optimized">{question?.question || 'Question de réordonnancement'}</h3>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#ef4444' }}>
+          <p>Erreur: Les données de la question ne sont pas valides.</p>
+          <p>Structure attendue: question.details.items (tableau)</p>
+          <p>Reçu: {JSON.stringify(question?.details || question)}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="reorder-container">
@@ -659,6 +687,7 @@ export const ReorderQuestion = ({ question, onAnswer, showAnswer, isQuestionAnsw
 };
 
 // Composant Fill in Blanks - CORRIGÉ
+// Composant Fill in Blanks - CORRIGÉ
 export const FillInBlanksQuestion = ({ question, onAnswer, showAnswer, isQuestionAnswered, userAnswers }) => {
   const [draggedWord, setDraggedWord] = useState(null);
   const [droppedWords, setDroppedWords] = useState({});
@@ -666,14 +695,17 @@ export const FillInBlanksQuestion = ({ question, onAnswer, showAnswer, isQuestio
 
   // Réinitialiser complètement à chaque nouvelle question
   useEffect(() => {
+    // FIX 1: Safely retrieve words, defaulting to an empty array if question.words is undefined
+    const allWords = question.words || []; 
+    
     if (userAnswers && Object.keys(userAnswers).length > 0) {
       setDroppedWords(userAnswers);
       const usedWords = Object.values(userAnswers);
-      setAvailableWords(question.words.filter(word => !usedWords.includes(word)));
+      setAvailableWords(allWords.filter(word => !usedWords.includes(word)));
     } else {
       // Réinitialisation complète pour nouvelle question
       setDroppedWords({});
-      setAvailableWords([...question.words]);
+      setAvailableWords([...allWords]);
       setDraggedWord(null);
     }
   }, [userAnswers, question.words, question.question]); // Ajouter question.question
@@ -747,7 +779,10 @@ export const FillInBlanksQuestion = ({ question, onAnswer, showAnswer, isQuestio
   }, [showAnswer, isQuestionAnswered, droppedWords, onAnswer]);
 
   const renderParagraphWithBlanks = () => {
-    let paragraphParts = question.paragraph.split('_____');
+    // FIX 2: Use question.question instead of the undefined question.paragraph, 
+    // and safely fall back to an empty string.
+    let textToSplit = question.question || question.paragraph || ''; 
+    let paragraphParts = textToSplit.split('_____');
     let result = [];
 
     paragraphParts.forEach((part, index) => {
@@ -755,8 +790,11 @@ export const FillInBlanksQuestion = ({ question, onAnswer, showAnswer, isQuestio
       
       if (index < paragraphParts.length - 1) {
         const blankId = index;
-        const isCorrect = showAnswer && droppedWords[blankId] === question.blanks[blankId].correctAnswer;
-        const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== question.blanks[blankId].correctAnswer;
+        // Safety check for question.blanks
+        const correctAnswer = question.blanks && question.blanks[blankId] ? question.blanks[blankId].correctAnswer : '';
+
+        const isCorrect = showAnswer && droppedWords[blankId] === correctAnswer;
+        const isWrong = showAnswer && droppedWords[blankId] && droppedWords[blankId] !== correctAnswer;
         
         result.push(
           <span
@@ -784,7 +822,7 @@ export const FillInBlanksQuestion = ({ question, onAnswer, showAnswer, isQuestio
           >
             {showAnswer && !droppedWords[blankId] ? (
               <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
-                {question.blanks[blankId].correctAnswer}
+                {correctAnswer}
               </span>
             ) : (
               droppedWords[blankId] || ''

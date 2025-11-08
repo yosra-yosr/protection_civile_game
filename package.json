@@ -1,6 +1,7 @@
 {
   "name": "protection_civile_game",
   "version": "0.1.0",
+  "proxy": "http://localhost:4000",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
