@@ -183,5 +183,5 @@ transformDomainsData(apiData) {
     }
   }
 }
-
-export default ApiService();
+const apiServiceInstance = new ApiService();
+export default apiServiceInstance;
