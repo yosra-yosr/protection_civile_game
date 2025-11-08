@@ -520,7 +520,7 @@ export const ReorderQuestion = ({ question, onAnswer, showAnswer, isQuestionAnsw
       setAvailableItems(shuffled);
       setOrderedItems(new Array(items.length).fill(null));
     }
-  }, [question.question, question.details, question.items, userOrder]);
+  }, [question.question, question.details, question.items, userOrder,question]);
 
   const handleDragStart = (e, item) => {
     if (showAnswer || isQuestionAnswered) return;
