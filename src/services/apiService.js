@@ -2,8 +2,6 @@
 
 import { CONFIG } from "./constant";
 
-
-
 class ApiService {
   /**
    * Récupérer tous les domaines avec leurs catégories
@@ -42,7 +40,7 @@ class ApiService {
   /**
    * Transformer les données des domaines du format API vers le format attendu par le frontend
    */
-transformDomainsData(apiData) {
+  transformDomainsData(apiData) {
     const domains = {};
     
     apiData.forEach(domain => {
@@ -54,8 +52,9 @@ transformDomainsData(apiData) {
           gradient: category.gradient,
           questions: [], // Les questions seront chargées séparément
           _meta: {
-            id: category.id, // Store the category ID here
-            slug: category.slug
+            id: category.id,
+            slug: category.slug,
+            isActive: category.is_active // Ajout de is_active
           }
         };
       });
@@ -66,7 +65,7 @@ transformDomainsData(apiData) {
         description: domain.description_ar,
         order: domain.order,
         gradient: domain.gradient,
-        requirements: domain.requirements || {},
+        isActive: domain.is_active, // Ajout de is_active pour le domaine
         categories: categories,
         _meta: {
           id: domain.id,
@@ -104,9 +103,9 @@ transformDomainsData(apiData) {
         case 'fill-in-blanks':
           return {
             ...baseQuestion,
-           question: q.question_text, // Correction 1 de l'erreur précédente
-           words: q.details.words,    // <--- AJOUTEZ/VÉRIFIEZ CETTE LIGNE
-           blanks: q.details.blanks
+            question: q.question_text,
+            words: q.details.words,
+            blanks: q.details.blanks
           };
 
         case 'multiple-checkbox':
@@ -183,5 +182,6 @@ transformDomainsData(apiData) {
     }
   }
 }
+
 const apiServiceInstance = new ApiService();
 export default apiServiceInstance;
