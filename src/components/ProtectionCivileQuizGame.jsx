@@ -315,9 +315,10 @@ const loadDomains = async () => {
         setShowAnswer(true);
         
         let correctSelections = 0;
+        const selectedAnswers = answerData || []; // Protection contre null
         
         question.options.forEach(option => {
-          const isSelected = answerData.includes(option.id);
+          const isSelected = selectedAnswers.includes(option.id);
           if (option.correct && isSelected) {
             correctSelections++;
           } else if (!option.correct && !isSelected) {
