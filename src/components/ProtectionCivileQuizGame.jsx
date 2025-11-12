@@ -150,7 +150,7 @@ const ProtectionCivileQuizGame = () => {
 useEffect(() => {
   if (playerName) {
     const protection = initEnhancedScreenshotProtection(); // ⬅️ Changé ici
-    const cleanup = protection.init(playerName);
+    const cleanup = protection.init('AVSPC Ben Arous');
     return cleanup;
   }
 }, [playerName]);
