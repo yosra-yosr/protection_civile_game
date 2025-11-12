@@ -138,7 +138,6 @@ export const initEnhancedScreenshotProtection = () => {
   
   // 1. Visibilité rapide (iOS/Android screenshot)
   let lastVisibilityChange = Date.now();
-  let visibilityCount = 0;
   
   const detectMobileScreenshot = () => {
     document.addEventListener('visibilitychange', () => {
@@ -147,13 +146,11 @@ export const initEnhancedScreenshotProtection = () => {
       
       // Screenshot typique: < 200ms
       if (diff < 200 && document.hidden) {
-        visibilityCount++;
         console.warn('🚨 Screenshot mobile détecté!');
         hideContent();
         logSecurityEvent('mobile_screenshot_pattern');
       }
       
-      setTimeout(() => { visibilityCount = 0; }, 2000);
       lastVisibilityChange = now;
     });
 
