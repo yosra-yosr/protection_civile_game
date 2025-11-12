@@ -11,6 +11,7 @@ import {
 import { QuestionRenderer } from './QuestionTypes';
 // Import du service API au lieu du fichier data.js
 import apiService from '../services/apiService.js';
+import initEnhancedScreenshotProtection from '../utils/enhancedScreenshotProtection.js';
 import { badges as badgesList, gameSettings, playerProgress } from './data.js';
 import '../styles/app.css';
 import { 
@@ -144,6 +145,15 @@ const ProtectionCivileQuizGame = () => {
   const [error, setError] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [questionsLoading, setQuestionsLoading] = useState(false);
+
+  // Dans le composant ProtectionCivileQuizGame, ajouter ce useEffect
+useEffect(() => {
+  if (playerName) {
+    const protection = initEnhancedScreenshotProtection(); // ⬅️ Changé ici
+    const cleanup = protection.init(playerName);
+    return cleanup;
+  }
+}, [playerName]);
 
   // Charger les domaines au montage du composant
   useEffect(() => {

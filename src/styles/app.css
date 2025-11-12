@@ -3988,3 +3988,48 @@ body::before {
     font-size: 1.5rem;
   }
 }
+
+
+
+
+.quiz-container *,
+.question-card-optimized *,
+.results-container * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* Autoriser la sélection uniquement dans les inputs */
+input, textarea {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Empêcher le drag des images */
+img {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+  pointer-events: none !important;
+}
+
+/* Protection contre l'impression */
+@media print {
+  body {
+    display: none !important;
+  }
+  body::before {
+    content: "الطباعة غير مسموحة - Printing is not allowed";
+    display: block;
+    text-align: center;
+    font-size: 24px;
+    padding: 50px;
+  }
+}
