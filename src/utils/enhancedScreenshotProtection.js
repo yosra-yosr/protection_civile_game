@@ -1,8 +1,6 @@
-// utils/enhancedScreenshotProtection.js
-
 /**
- * Protection RÉELLEMENT EFFICACE contre les captures d'écran
- * Stratégie: Masquer/Flouter le contenu AVANT la capture
+ * PROTECTION ANTI-SCREENSHOT ULTRA-RENFORCÉE POUR MOBILE
+ * Stratégie: Masquer le contenu AVANT toute capture possible
  */
 
 export const initEnhancedScreenshotProtection = () => {
@@ -15,25 +13,27 @@ export const initEnhancedScreenshotProtection = () => {
   let hideTimeout = null;
 
   // ========== MASQUER LE CONTENU INSTANTANÉMENT ==========
-  const hideContent = () => {
+  const hideContent = (reason = 'unknown') => {
     if (protectionActive) return;
     protectionActive = true;
 
-    // Ajouter overlay de blocage IMMÉDIAT
+    console.warn('🚨 Screenshot detected:', reason);
+
+    // Overlay de blocage IMMÉDIAT
     const overlay = document.createElement('div');
     overlay.id = 'instant-screenshot-block';
     overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #1e293b;
-      z-index: 999999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: #1e293b !important;
+      z-index: 999999 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-direction: column !important;
     `;
     
     overlay.innerHTML = `
@@ -61,47 +61,41 @@ export const initEnhancedScreenshotProtection = () => {
           border-radius: 8px;
           font-size: 14px;
         ">
-          🔒 تم تسجيل هذه المحاولة في النظام
+          🔒 تم تسجيل هذه المحاولة في النظام<br>
+          السبب: ${reason}
         </div>
       </div>
     `;
     
     document.body.appendChild(overlay);
 
-    // Flouter tout le contenu en arrière-plan
-    document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container').forEach(el => {
-      el.style.filter = 'blur(30px)';
+    // Flouter tout le contenu
+    document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+      el.style.filter = 'blur(50px)';
       el.style.opacity = '0';
+      el.style.visibility = 'hidden';
     });
 
-    // Retirer après 3 secondes
+    // Retirer après 4 secondes
     clearTimeout(hideTimeout);
     hideTimeout = setTimeout(() => {
       overlay.remove();
-      document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container').forEach(el => {
+      document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
         el.style.filter = '';
         el.style.opacity = '';
+        el.style.visibility = '';
       });
       protectionActive = false;
-    }, 3000);
+    }, 4000);
   };
 
   // ========== PROTECTION CLAVIER (PC) ==========
   const preventScreenshotKeys = (e) => {
     const dangerous = [
-      // Print Screen
       e.key === 'PrintScreen',
-      
-      // Windows Snipping Tool: Win + Shift + S
-      (e.key === 's' || e.key === 'S') && e.shiftKey && (e.metaKey || e.ctrlKey || e.key === 'Meta'),
-      
-      // Mac: Cmd + Shift + 3/4/5
+      (e.key === 's' || e.key === 'S') && e.shiftKey && (e.metaKey || e.ctrlKey),
       ['3', '4', '5'].includes(e.key) && e.shiftKey && e.metaKey,
-      
-      // Windows: Alt + Print Screen
       e.key === 'PrintScreen' && e.altKey,
-      
-      // Snip & Sketch: Win + Shift + S
       e.code === 'KeyS' && e.shiftKey && (e.metaKey || e.getModifierState?.('OS')),
     ];
 
@@ -109,151 +103,282 @@ export const initEnhancedScreenshotProtection = () => {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
+      hideContent('keyboard_' + e.key);
       
-      // MASQUER LE CONTENU IMMÉDIATEMENT
-      hideContent();
-      logSecurityEvent('keyboard_screenshot_blocked', e.key);
-      
-      // Vider le presse-papier
       try {
-        navigator.clipboard.writeText('🚫 المحتوى محمي - التقاط الشاشة غير مسموح به');
-      } catch (err) {
-        console.warn('Cannot clear clipboard');
-      }
+        navigator.clipboard.writeText('🚫 المحتوى محمي');
+      } catch (err) {}
       
       return false;
     }
 
-    // Bloquer Ctrl+P (Impression)
     if ((e.key === 'p' || e.key === 'P') && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      e.stopPropagation();
-      hideContent();
-      logSecurityEvent('print_attempt_blocked');
+      hideContent('print_attempt');
       return false;
     }
   };
 
-  // ========== DÉTECTION MOBILE ==========
+  // ========== DÉTECTION MOBILE ULTRA-RENFORCÉE ==========
   
-  // 1. Visibilité rapide (iOS/Android screenshot)
-  let lastVisibilityChange = Date.now();
-  
-  const detectMobileScreenshot = () => {
-    document.addEventListener('visibilitychange', () => {
+  const setupMobileProtection = () => {
+    
+    // ============ 1. MASQUER SUR CHANGEMENT DE VISIBILITÉ ============
+    let visibilityCount = 0;
+    let lastVisChange = Date.now();
+    
+    const handleVisibilityChange = () => {
       const now = Date.now();
-      const diff = now - lastVisibilityChange;
+      const timeDiff = now - lastVisChange;
       
-      // Screenshot typique: < 200ms
-      if (diff < 200 && document.hidden) {
-        console.warn('🚨 Screenshot mobile détecté!');
-        hideContent();
-        logSecurityEvent('mobile_screenshot_pattern');
-      }
-      
-      lastVisibilityChange = now;
-    });
-
-    // Masquer contenu quand app passe en arrière-plan
-    document.addEventListener('visibilitychange', () => {
+      // Si l'app devient invisible rapidement
       if (document.hidden) {
-        document.body.style.opacity = '0';
+        visibilityCount++;
+        
+        // Pattern de screenshot détecté
+        if (timeDiff < 300 || visibilityCount >= 1) {
+          hideContent('visibility_hidden');
+        }
+        
+        // Masquer préventivement le contenu
+        document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+          el.style.opacity = '0';
+          el.style.filter = 'blur(30px)';
+        });
       } else {
+        // Restaurer après un délai
         setTimeout(() => {
-          document.body.style.opacity = '1';
-        }, 100);
+          if (!protectionActive) {
+            document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+              el.style.opacity = '';
+              el.style.filter = '';
+            });
+          }
+        }, 200);
       }
-    });
-  };
-
-  // 2. Détection blur/focus rapide
-  let blurCount = 0;
-  const detectBlurPattern = () => {
-    window.addEventListener('blur', () => {
+      
+      lastVisChange = now;
+      
+      // Reset counter
+      setTimeout(() => { visibilityCount = 0; }, 2000);
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // ============ 2. DÉTECTION BLUR/FOCUS RAPIDE ============
+    let blurCount = 0;
+    let lastBlur = Date.now();
+    
+    const handleBlur = () => {
+      const now = Date.now();
+      const timeDiff = now - lastBlur;
+      
       blurCount++;
       
-      if (blurCount >= 1) {
-        hideContent();
-        logSecurityEvent('blur_screenshot_pattern');
+      // Si blur répétés rapidement
+      if (timeDiff < 500 || blurCount >= 2) {
+        hideContent('blur_pattern');
       }
       
+      // Masquer préventivement
+      document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+        el.style.opacity = '0.3';
+        el.style.filter = 'blur(20px)';
+      });
+      
+      lastBlur = now;
       setTimeout(() => { blurCount = 0; }, 1500);
-    });
-  };
-
-  // 3. Android spécifique
-  const detectAndroidScreenshot = () => {
-    if (!isAndroid) return;
+    };
     
-    let lastResize = Date.now();
-    window.addEventListener('resize', () => {
-      const now = Date.now();
-      if (now - lastResize < 150) {
-        console.warn('🚨 Android screenshot pattern');
-        hideContent();
-        logSecurityEvent('android_screenshot');
-      }
-      lastResize = now;
-    });
-  };
-
-  // 4. iOS spécifique
-  const detectIOSScreenshot = () => {
-    if (!isIOS) return;
+    window.addEventListener('blur', handleBlur);
     
-    // iOS déclenche un pageshow après screenshot
+    const handleFocus = () => {
+      setTimeout(() => {
+        if (!protectionActive) {
+          document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+            el.style.opacity = '';
+            el.style.filter = '';
+          });
+        }
+      }, 100);
+    };
+    
+    window.addEventListener('focus', handleFocus);
+
+    // ============ 3. DÉTECTION PAGEHIDE (iOS/Android) ============
+    window.addEventListener('pagehide', () => {
+      hideContent('pagehide_event');
+      document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+        el.style.display = 'none';
+      });
+    });
+
     window.addEventListener('pageshow', (e) => {
       if (e.persisted) {
-        hideContent();
-        logSecurityEvent('ios_screenshot_suspected');
+        hideContent('pageshow_persisted');
       }
+      setTimeout(() => {
+        if (!protectionActive) {
+          document.querySelectorAll('.quiz-container, .question-card-optimized, .results-container, .max-width').forEach(el => {
+            el.style.display = '';
+          });
+        }
+      }, 200);
     });
+
+    // ============ 4. DÉTECTION RESIZE (Android) ============
+    if (isAndroid) {
+      let resizeCount = 0;
+      let lastResize = Date.now();
+      
+      const handleResize = () => {
+        const now = Date.now();
+        const timeDiff = now - lastResize;
+        
+        resizeCount++;
+        
+        // Si resize rapides répétés
+        if (timeDiff < 200 || resizeCount >= 2) {
+          hideContent('android_resize');
+        }
+        
+        lastResize = now;
+        setTimeout(() => { resizeCount = 0; }, 1000);
+      };
+      
+      window.addEventListener('resize', handleResize);
+    }
+
+    // ============ 5. DÉTECTION TOUCHES VOLUME (Android) ============
+    if (isAndroid) {
+      let volumeDownPressed = false;
+      
+      document.addEventListener('keydown', (e) => {
+        // Volume Down
+        if (e.key === 'VolumeDown' || e.keyCode === 182) {
+          volumeDownPressed = true;
+          setTimeout(() => { volumeDownPressed = false; }, 500);
+        }
+        
+        // Power button (non détectable directement, mais on surveille les patterns)
+        if (volumeDownPressed) {
+          hideContent('android_volume_screenshot');
+        }
+      });
+    }
+
+    // ============ 6. DÉTECTION GESTES iOS ============
+    if (isIOS) {
+      let touchCount = 0;
+      let touchStartTime = 0;
+      
+      document.addEventListener('touchstart', (e) => {
+        touchCount = e.touches.length;
+        touchStartTime = Date.now();
+        
+        // Screenshot iOS = Power + Volume Up = souvent 3+ touches détectées
+        if (touchCount >= 3) {
+          hideContent('ios_multi_touch');
+        }
+      });
+      
+      document.addEventListener('touchend', (e) => {
+        const touchDuration = Date.now() - touchStartTime;
+        
+        // Si release rapide après multi-touch
+        if (touchCount >= 2 && touchDuration < 300) {
+          hideContent('ios_touch_pattern');
+        }
+        
+        touchCount = 0;
+      });
+    }
+
+    // ============ 7. SURVEILLANCE INACTIVITÉ SOUDAINE ============
+    let lastTouchMove = Date.now();
+    
+    document.addEventListener('touchmove', () => {
+      lastTouchMove = Date.now();
+    });
+    
+    document.addEventListener('touchend', () => {
+      lastTouchMove = Date.now();
+    });
+    
+    // Vérifier toutes les 100ms
+    const inactivityCheck = setInterval(() => {
+      const inactivityTime = Date.now() - lastTouchMove;
+      
+      // Si plus de 5 secondes d'inactivité ET l'app est visible
+      // Cela peut indiquer un screenshot en cours
+      if (inactivityTime > 5000 && !document.hidden) {
+        // On reste vigilant mais on ne bloque pas automatiquement
+      }
+    }, 100);
+
+    // ============ 8. DÉTECTION SCREENSHOT NATIF (Android 11+) ============
+    if ('getScreenshot' in navigator) {
+      // API hypothétique future
+      try {
+        navigator.permissions.query({ name: 'screenshot' }).then(result => {
+          if (result.state === 'granted') {
+            hideContent('screenshot_permission_active');
+          }
+        });
+      } catch (e) {}
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(inactivityCheck);
+    };
   };
 
   // ========== WATERMARK RENFORCÉ ==========
   const createSuperWatermark = (userName) => {
-    // Canvas watermark très visible
     const canvas = document.createElement('canvas');
     canvas.id = 'super-watermark';
     canvas.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 99997;
-      opacity: 0.15;
-      mix-blend-mode: overlay;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      pointer-events: none !important;
+      z-index: 99997 !important;
+      opacity: 0.2 !important;
+      mix-blend-mode: overlay !important;
     `;
     
     const updateCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth * window.devicePixelRatio;
+      canvas.height = window.innerHeight * window.devicePixelRatio;
       const ctx = canvas.getContext('2d');
       
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const fontSize = isMobile ? 18 : 24;
+      const fontSize = isMobile ? 16 : 24;
       ctx.font = `bold ${fontSize}px Arial`;
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.6)';
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.8)';
       ctx.textAlign = 'center';
       
       const time = new Date().toLocaleTimeString('ar-TN');
       const date = new Date().toLocaleDateString('ar-TN');
-      const text = `${userName} | ${date} ${time}`;
+      const text = `${userName} | ${date} ${time} | محمي`;
       
-      const spacing = isMobile ? 120 : 160;
+      const spacing = isMobile ? 100 : 140;
       
-      for (let y = 50; y < canvas.height; y += spacing) {
-        for (let x = 50; x < canvas.width; x += spacing) {
+      for (let y = 30; y < window.innerHeight; y += spacing) {
+        for (let x = 30; x < window.innerWidth; x += spacing) {
           ctx.save();
           ctx.translate(x, y);
-          ctx.rotate(-Math.PI / 5);
+          ctx.rotate(-Math.PI / 6);
           
-          // Ombre pour plus de visibilité
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-          ctx.shadowBlur = 4;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+          ctx.shadowBlur = 5;
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
           
@@ -268,27 +393,28 @@ export const initEnhancedScreenshotProtection = () => {
     
     document.body.appendChild(canvas);
     
-    // Badge visible en haut
+    // Badge visible
     const badge = document.createElement('div');
     badge.id = 'protection-badge';
     badge.style.cssText = `
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: rgba(220, 38, 38, 0.9);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      z-index: 99996;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      position: fixed !important;
+      top: 10px !important;
+      right: 10px !important;
+      background: rgba(220, 38, 38, 0.95) !important;
+      color: white !important;
+      padding: 6px 12px !important;
+      border-radius: 20px !important;
+      font-size: 11px !important;
+      font-weight: bold !important;
+      z-index: 99998 !important;
+      pointer-events: none !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
     `;
     badge.innerHTML = `
-      <span style="font-size: 16px;">🔒</span>
+      <span style="font-size: 14px;">🔒</span>
       <span>محمي</span>
     `;
     document.body.appendChild(badge);
@@ -299,8 +425,7 @@ export const initEnhancedScreenshotProtection = () => {
         mutation.removedNodes.forEach((node) => {
           if (node.id === 'super-watermark') {
             document.body.appendChild(canvas);
-            hideContent();
-            logSecurityEvent('watermark_removal_attempt');
+            hideContent('watermark_removal');
           }
           if (node.id === 'protection-badge') {
             document.body.appendChild(badge);
@@ -319,13 +444,12 @@ export const initEnhancedScreenshotProtection = () => {
     };
   };
 
-  // ========== BLOQUER CLIC DROIT ==========
+  // ========== BLOQUER INTERACTIONS ==========
   const preventContextMenu = (e) => {
     e.preventDefault();
     return false;
   };
 
-  // ========== BLOQUER SÉLECTION ==========
   const preventSelection = (e) => {
     if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
       e.preventDefault();
@@ -333,30 +457,9 @@ export const initEnhancedScreenshotProtection = () => {
     }
   };
 
-  // ========== LOGGING ==========
-  const logSecurityEvent = (eventType, details = '') => {
-    const logData = {
-      type: eventType,
-      details,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      isMobile,
-      isIOS,
-      isAndroid,
-      resolution: `${window.screen.width}x${window.screen.height}`,
-      pixelRatio: window.devicePixelRatio,
-      url: window.location.href
-    };
-    
-    console.warn('🚨 SECURITY EVENT:', logData);
-    
-    // TODO: Envoyer au backend
-    // fetch('/api/security-violations', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(logData)
-    // }).catch(err => console.error('Log failed:', err));
+  const preventLongPress = (e) => {
+    e.preventDefault();
+    return false;
   };
 
   // ========== STYLES CSS ==========
@@ -364,7 +467,6 @@ export const initEnhancedScreenshotProtection = () => {
     const style = document.createElement('style');
     style.id = 'protection-styles';
     style.textContent = `
-      /* Désactiver sélection partout sauf inputs */
       body * {
         -webkit-touch-callout: none !important;
         -webkit-user-select: none !important;
@@ -379,18 +481,20 @@ export const initEnhancedScreenshotProtection = () => {
         user-select: text !important;
       }
       
-      /* Bloquer impression */
       @media print {
-        body {
-          display: none !important;
-        }
+        body { display: none !important; }
       }
       
-      /* Transition pour masquage */
       .quiz-container,
       .question-card-optimized,
-      .results-container {
-        transition: filter 0.1s, opacity 0.1s !important;
+      .results-container,
+      .max-width {
+        transition: filter 0.05s, opacity 0.05s !important;
+      }
+
+      /* Empêcher le screenshot avec les outils natifs */
+      body {
+        -webkit-app-region: no-drag;
       }
     `;
     document.head.appendChild(style);
@@ -405,8 +509,7 @@ export const initEnhancedScreenshotProtection = () => {
       if (widthDiff > 160 || heightDiff > 160) {
         console.clear();
         console.log('%c🚫 STOP', 'color: red; font-size: 50px; font-weight: bold;');
-        console.log('%cيرجى إغلاق أدوات المطور فوراً', 'color: red; font-size: 18px;');
-        hideContent();
+        hideContent('devtools_open');
       }
     };
     
@@ -415,28 +518,41 @@ export const initEnhancedScreenshotProtection = () => {
 
   // ========== INITIALISATION ==========
   const init = (userName = 'متطوع') => {
-    console.log('🔒 Protection anti-screenshot activée');
+    console.log('🔒 Protection anti-screenshot ULTRA activée');
     
-    // Styles
     addStyles();
     
-    // Événements clavier (CAPTURE phase = avant tout le monde)
+    // Événements clavier
     document.addEventListener('keydown', preventScreenshotKeys, { capture: true });
     document.addEventListener('keyup', preventScreenshotKeys, { capture: true });
     
-    // Événements souris
+    // Événements souris/touch
     document.addEventListener('contextmenu', preventContextMenu, { capture: true });
     document.addEventListener('selectstart', preventSelection);
     document.addEventListener('dragstart', (e) => {
       if (e.target.tagName === 'IMG') e.preventDefault();
     });
     
-    // Détection mobile
+    // Long press mobile
+    let longPressTimer;
+    document.addEventListener('touchstart', (e) => {
+      longPressTimer = setTimeout(() => {
+        preventLongPress(e);
+      }, 500);
+    });
+    
+    document.addEventListener('touchend', () => {
+      clearTimeout(longPressTimer);
+    });
+    
+    document.addEventListener('touchmove', () => {
+      clearTimeout(longPressTimer);
+    });
+    
+    // Protection mobile
+    let cleanupMobile;
     if (isMobile) {
-      detectMobileScreenshot();
-      detectBlurPattern();
-      if (isAndroid) detectAndroidScreenshot();
-      if (isIOS) detectIOSScreenshot();
+      cleanupMobile = setupMobileProtection();
     }
     
     // Watermark
@@ -459,6 +575,7 @@ export const initEnhancedScreenshotProtection = () => {
       clearInterval(devToolsInterval);
       clearTimeout(hideTimeout);
       cleanupWatermark();
+      if (cleanupMobile) cleanupMobile();
       
       const style = document.getElementById('protection-styles');
       if (style) style.remove();
