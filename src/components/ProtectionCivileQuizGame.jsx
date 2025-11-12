@@ -728,7 +728,7 @@ const loadDomains = async () => {
               </div>
               
               <div className="title-container">
-                <h1 className="title">لعبة التطوع في خدمة الحماية المدنية</h1>
+                <h1 className="title">لعبة التطوع في خدمة الحماية المدنية ببن عروس</h1>
                 
                 <div className="slogan-container">
                   <div className="slogan-bg"></div>
