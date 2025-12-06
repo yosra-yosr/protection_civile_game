@@ -4033,3 +4033,106 @@ img {
     padding: 50px;
   }
 }
+
+/* Styles pour l'affichage du logo AVSPC */
+.domain-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.domain-title img {
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+}
+
+/* Styles pour l'en-tête du quiz avec logo */
+.quiz-logo-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.quiz-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.quiz-copyright {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Styles pour l'en-tête de la question avec logo */
+.question-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.question-header-bottom {
+  display: flex;
+  gap: 12px;
+}
+
+/* Styles pour les résultats avec logo */
+.results-logo-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Style pour les questions randomisées - indication visuelle */
+.randomized-badge {
+  background: #3b82f6;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .domain-title img {
+    width: 20px;
+    height: 20px;
+    margin-left: 6px;
+  }
+  
+  .quiz-logo-header {
+    padding: 6px 12px;
+  }
+  
+  .quiz-logo {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .quiz-copyright {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .question-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .domain-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .domain-title img {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+}

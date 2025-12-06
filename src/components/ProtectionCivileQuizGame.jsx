@@ -120,6 +120,16 @@ const Modal = React.memo(({ isOpen, onClose, children }) => {
   );
 });
 
+// Fonction pour randomiser un tableau (algorithme de Fisher-Yates)
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 const ProtectionCivileQuizGame = () => {
   // États existants
   const [currentScreen, setCurrentScreen] = useState('home');
@@ -145,15 +155,16 @@ const ProtectionCivileQuizGame = () => {
   const [error, setError] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [questionsLoading, setQuestionsLoading] = useState(false);
+  // État pour stocker les questions randomisées
+  const [randomizedQuestions, setRandomizedQuestions] = useState([]);
 
-  // Dans le composant ProtectionCivileQuizGame, ajouter ce useEffect
-useEffect(() => {
-  if (playerName) {
-    const protection = initEnhancedScreenshotProtection(); // ⬅️ Changé ici
-    const cleanup = protection.init('AVSPC Ben Arous');
-    return cleanup;
-  }
-}, [playerName]);
+  useEffect(() => {
+    if (playerName) {
+      const protection = initEnhancedScreenshotProtection();
+      const cleanup = protection.init('AVSPC Ben Arous');
+      return cleanup;
+    }
+  }, [playerName]);
 
   // Charger les domaines au montage du composant
   useEffect(() => {
@@ -161,38 +172,44 @@ useEffect(() => {
     loadDomains();
   }, []);
 
-// In your loadDomains function, after getting the data:
-const loadDomains = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    const domainsData = await apiService.getDomains();
-    console.log('Loaded domains:', domainsData); // Add this
-    setDomains(domainsData);
-  } catch (err) {
-    setError('فشل في تحميل البيانات. يرجى المحاولة لاحقاً.');
-    console.error('Erreur chargement domaines:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  const loadDomains = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const domainsData = await apiService.getDomains();
+      console.log('Loaded domains:', domainsData);
+      setDomains(domainsData);
+    } catch (err) {
+      setError('فشل في تحميل البيانات. يرجى المحاولة لاحقاً.');
+      console.error('Erreur chargement domaines:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Charger les questions d'une catégorie
+  // Charger les questions d'une catégorie et les randomiser
   const loadCategoryQuestions = async (categoryId, domainKey, categoryName) => {
     try {
       setQuestionsLoading(true);
       const questions = await apiService.getQuestionsByCategory(categoryId);
       
-      // Mettre à jour les questions dans l'état des domaines
+      // Randomiser l'ordre des questions
+      const shuffledQuestions = shuffleArray(questions);
+      console.log('Questions randomisées:', shuffledQuestions.length);
+      
+      // Mettre à jour les questions dans l'état des domaines (version non randomisée pour référence)
       setDomains(prev => {
         const updated = { ...prev };
         if (updated[domainKey]?.categories[categoryName]) {
-          updated[domainKey].categories[categoryName].questions = questions;
+          updated[domainKey].categories[categoryName].questions = questions; // Stocker original
         }
         return updated;
       });
       
-      return questions;
+      // Stocker les questions randomisées dans un état séparé
+      setRandomizedQuestions(shuffledQuestions);
+      
+      return shuffledQuestions;
     } catch (err) {
       console.error('Erreur chargement questions:', err);
       setError('فشل في تحميل الأسئلة');
@@ -202,16 +219,30 @@ const loadDomains = async () => {
     }
   };
 
-  // Optimisation: Mémoriser la question actuelle
+  // Modifier getCurrentQuestion pour utiliser randomizedQuestions
   const getCurrentQuestion = useCallback(() => {
     if (!selectedCategory || !selectedDomain) return null;
+    // Utiliser les questions randomisées si disponibles
+    if (randomizedQuestions.length > 0) {
+      return randomizedQuestions[currentQuestionIndex];
+    }
+    // Fallback aux questions non randomisées
     return domains[selectedDomain]?.categories[selectedCategory]?.questions[currentQuestionIndex];
-  }, [selectedCategory, selectedDomain, currentQuestionIndex, domains]);
+  }, [selectedCategory, selectedDomain, currentQuestionIndex, domains, randomizedQuestions]);
 
-  // Optimisation: Mémoriser les données de catégorie
+  // Modifier categoryData pour inclure les questions randomisées
   const categoryData = useMemo(() => {
-    return selectedCategory && selectedDomain ? domains[selectedDomain]?.categories[selectedCategory] : null;
-  }, [selectedCategory, selectedDomain, domains]);
+    if (!selectedCategory || !selectedDomain) return null;
+    
+    const originalCategoryData = domains[selectedDomain]?.categories[selectedCategory];
+    if (!originalCategoryData) return null;
+    
+    // Retourner un objet avec les données originales mais avec les questions randomisées
+    return {
+      ...originalCategoryData,
+      questions: randomizedQuestions.length > 0 ? randomizedQuestions : originalCategoryData.questions || []
+    };
+  }, [selectedCategory, selectedDomain, domains, randomizedQuestions]);
 
   const updatePlayerProgress = useCallback((domainKey, categoryName, score, percentage) => {
     setPlayerProgressData(prev => {
@@ -578,18 +609,17 @@ const loadDomains = async () => {
     }
   }, [currentQuestionIndex, answeredQuestions, categoryData, selectedCategory]);
 
-  // MISE À JOUR: startGame avec chargement des questions
+  // MISE À JOUR: startGame avec chargement des questions randomisées
   const startGame = useCallback(async (domainKey, category, categoryId) => {
     setSelectedDomain(domainKey);
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
     setCurrentScreen('loading'); // Nouvel écran de chargement
+    // Réinitialiser les questions randomisées
+    setRandomizedQuestions([]);
     
     // Charger les questions si elles ne sont pas déjà chargées
-    const existingQuestions = domains[domainKey]?.categories[category]?.questions;
-    if (!existingQuestions || existingQuestions.length === 0) {
-      await loadCategoryQuestions(categoryId, domainKey, category);
-    }
+    await loadCategoryQuestions(categoryId, domainKey, category);
     
     setCurrentQuestionIndex(0);
     setScore(0);
@@ -620,6 +650,8 @@ const loadDomains = async () => {
     setAnsweredQuestions({});
     setImageZoom(null);
     setShowExitConfirm(false);
+    // Réinitialiser les questions randomisées
+    setRandomizedQuestions([]);
   }, [score, selectedDomain, selectedCategory]);
 
   const handleNameSubmit = useCallback(() => {
@@ -696,7 +728,7 @@ const loadDomains = async () => {
     );
   }
 
-  // Home Screen (mise à jour de l'appel startGame)
+  // Home Screen avec logo AVSPC dans chaque domaine
   if (currentScreen === 'home') {
     return (
       <div className="quiz-container">
@@ -721,7 +753,7 @@ const loadDomains = async () => {
                   <img
                     src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
                     sizes="50vw"
-                    alt="Protection Civile Tunisie"
+                    alt="AVSPC Ben Arous"
                     className="logo"
                   />
                 </div>
@@ -775,123 +807,136 @@ const loadDomains = async () => {
             </div>
           )}
 
-         
-{playerName && (
-  <>
-    <div className="welcome-card">
-      <p className="welcome-text">
-        مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
-      </p>
-      <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
-    </div>
-
-    <div className="domains-container">
-      {Object.entries(domains)
-        .sort(([,a], [,b]) => a.order - b.order)
-        .map(([domainKey, domainData]) => {
-          // Utiliser is_active de l'API au lieu de la logique locale
-          const isUnlocked = domainData.isActive;
-          const progress = playerProgress.getDomainProgress(domainKey, playerProgressData);
-          
-          return (
-            <div key={domainKey} className="domain-section">
-              <div className={`domain-header ${!isUnlocked ? 'locked' : ''}`}>
-                <div className="domain-info">
-                  <span className="domain-icon">{domainData.icon}</span>
-                  <div>
-                    <h3 className="domain-title">{domainKey}</h3>
-                    <p className="domain-description">{domainData.description}</p>
-                    {progress.total > 0 && isUnlocked && (
-                      <div className="domain-progress">
-                        التقدم: {progress.completed}/{progress.total} ({progress.percentage}%)
-                      </div>
-                    )}
-                    {!isUnlocked && (
-                      <p className="domain-locked-message">
-                        هذا المجال غير متاح حاليا
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {!isUnlocked && <span className="lock-icon">🔒</span>}
+          {playerName && (
+            <>
+              <div className="welcome-card">
+                <p className="welcome-text">
+                  مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
+                </p>
+                <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
               </div>
-              
-              {isUnlocked && (
-                <div className={`categories-grid ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
-                  {Object.entries(domainData.categories).map(([categoryName, categoryData]) => {
-                    const categoryProgress = playerProgressData.domains?.[domainKey]?.[categoryName];
-                    const categoryId = categoryData._meta?.id || categoryData.id;
-                    const isCategoryActive = categoryData._meta?.isActive !== false; // Par défaut true si non défini
+
+              <div className="domains-container">
+                {Object.entries(domains)
+                  .sort(([,a], [,b]) => a.order - b.order)
+                  .map(([domainKey, domainData]) => {
+                    // Utiliser is_active de l'API au lieu de la logique locale
+                    const isUnlocked = domainData.isActive;
+                    const progress = playerProgress.getDomainProgress(domainKey, playerProgressData);
                     
                     return (
-                      <div
-                        key={categoryName}
-                        onClick={() => {
-                          if (isCategoryActive) {
-                            startGame(domainKey, categoryName, categoryId);
-                          }
-                        }}
-                        className={`category-card smooth-transition hover-glow ${!isCategoryActive ? 'category-disabled' : ''}`}
-                        style={{
-                          background: categoryData.gradient,
-                          opacity: isCategoryActive ? 1 : 0.6,
-                          cursor: isCategoryActive ? 'pointer' : 'not-allowed'
-                        }}
-                      >
-                        <div className="category-header">
-                          <span className="category-icon">{categoryData.icon}</span>
-                          {categoryProgress?.completed && isCategoryActive && (
-                            <span className="completed-badge">✓</span>
-                          )}
-                          {!isCategoryActive && (
-                            <span className="lock-icon-small">🔒</span>
-                          )}
+                      <div key={domainKey} className="domain-section">
+                        <div className={`domain-header ${!isUnlocked ? 'locked' : ''}`}>
+                          <div className="domain-info">
+                            <span className="domain-icon">{domainData.icon}</span>
+                            <div>
+                              <h3 className="domain-title">
+                                {domainKey}
+                                {/* Ajout du logo AVSPC à côté du nom de domaine */}
+                                <img 
+                                  src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                                  alt="AVSPC Ben Arous"
+                                  style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    marginRight: '8px',
+                                    verticalAlign: 'middle',
+                                    display: 'inline-block'
+                                  }}
+                                />
+                              </h3>
+                              <p className="domain-description">{domainData.description}</p>
+                              {progress.total > 0 && isUnlocked && (
+                                <div className="domain-progress">
+                                  التقدم: {progress.completed}/{progress.total} ({progress.percentage}%)
+                                </div>
+                              )}
+                              {!isUnlocked && (
+                                <p className="domain-locked-message">
+                                  هذا المجال غير متاح حاليا
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          {!isUnlocked && <span className="lock-icon">🔒</span>}
                         </div>
                         
-                        <h4 className="category-title">{categoryName}</h4>
-                        <p className="category-description">
-                          {isCategoryActive ? (
-                            <>
-                              {categoryData.questions?.length || 0} سؤال
-                              {categoryProgress && (
-                                <span className="category-score"> • {categoryProgress.percentage}%</span>
-                              )}
-                            </>
-                          ) : (
-                            'غير متاح'
-                          )}
-                        </p>
+                        {isUnlocked && (
+                          <div className={`categories-grid ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
+                            {Object.entries(domainData.categories).map(([categoryName, categoryData]) => {
+                              const categoryProgress = playerProgressData.domains?.[domainKey]?.[categoryName];
+                              const categoryId = categoryData._meta?.id || categoryData.id;
+                              const isCategoryActive = categoryData._meta?.isActive !== false; // Par défaut true si non défini
+                              
+                              return (
+                                <div
+                                  key={categoryName}
+                                  onClick={() => {
+                                    if (isCategoryActive) {
+                                      startGame(domainKey, categoryName, categoryId);
+                                    }
+                                  }}
+                                  className={`category-card smooth-transition hover-glow ${!isCategoryActive ? 'category-disabled' : ''}`}
+                                  style={{
+                                    background: categoryData.gradient,
+                                    opacity: isCategoryActive ? 1 : 0.6,
+                                    cursor: isCategoryActive ? 'pointer' : 'not-allowed'
+                                  }}
+                                >
+                                  <div className="category-header">
+                                    <span className="category-icon">{categoryData.icon}</span>
+                                    {categoryProgress?.completed && isCategoryActive && (
+                                      <span className="completed-badge">✓</span>
+                                    )}
+                                    {!isCategoryActive && (
+                                      <span className="lock-icon-small">🔒</span>
+                                    )}
+                                  </div>
+                                  
+                                  <h4 className="category-title">{categoryName}</h4>
+                                  <p className="category-description">
+                                    {isCategoryActive ? (
+                                      <>
+                                        {categoryData.questions?.length || 0} سؤال
+                                        {categoryProgress && (
+                                          <span className="category-score"> • {categoryProgress.percentage}%</span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      'غير متاح'
+                                    )}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
+              </div>
+
+              {badges.length > 0 && (
+                <div className="badges-container">
+                  <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
+                  
+                  <div className="badges-list">
+                    {badges.map((badge, index) => (
+                      <div key={index} className="badge-item smooth-transition">
+                        <span className="badge-text">⭐ {badge}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
-          );
-        })}
-    </div>
-
-    {badges.length > 0 && (
-      <div className="badges-container">
-        <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
-        
-        <div className="badges-list">
-          {badges.map((badge, index) => (
-            <div key={index} className="badge-item smooth-transition">
-              <span className="badge-text">⭐ {badge}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-  </>
-)}
+            </>
+          )}
         </div>
       </div>
     );
   }
 
-  // Quiz Screen (reste identique - le code existant fonctionne déjà)
+  // Quiz Screen - Ajouter le logo AVSPC dans chaque question
   if (currentScreen === 'quiz') {
     const question = getCurrentQuestion();
     
@@ -902,6 +947,23 @@ const loadDomains = async () => {
     return (
       <div className="quiz-container">
         <div className="quiz-container-wrapper">
+          {/* Ajout du logo AVSPC en haut à gauche pour la traçabilité */}
+          <div className="quiz-logo-header">
+            <img 
+              src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+              alt="AVSPC Ben Arous"
+              className="quiz-logo"
+              style={{
+                width: '32px',
+                height: '32px',
+                marginRight: '12px'
+              }}
+            />
+            <span className="quiz-copyright" style={{ fontSize: '0.8rem', color: '#666' }}>
+              © AVSPC Ben Arous - جميع الحقوق محفوظة
+            </span>
+          </div>
+
           <div className="quiz-header-compact">
             <div className="quiz-header-main">
               <div className="quiz-category-info">
@@ -949,17 +1011,31 @@ const loadDomains = async () => {
           </div>
 
           <div className="question-card-optimized">
+            {/* Ajout du logo AVSPC dans l'en-tête de la question */}
             <div className="question-header-compact">
-              <span className="question-badge-compact">
-                السؤال {currentQuestionIndex + 1}
-                {isQuestionAnswered && <span className="answered-indicator">✓</span>}
-              </span>
-              {question.image && (
-                <span className="image-indicator">📷</span>
-              )}
-              {question.type === 'fill-in-blanks' && (
-                <span className="question-type-indicator">📝 املأ الفراغات</span>
-              )}
+              <div className="question-header-top">
+                <span className="question-badge-compact">
+                  السؤال {currentQuestionIndex + 1}
+                  {isQuestionAnswered && <span className="answered-indicator">✓</span>}
+                </span>
+                <img 
+                  src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                  alt="AVSPC Ben Arous"
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    opacity: 0.7
+                  }}
+                />
+              </div>
+              <div className="question-header-bottom">
+                {question.image && (
+                  <span className="image-indicator">📷</span>
+                )}
+                {question.type === 'fill-in-blanks' && (
+                  <span className="question-type-indicator">📝 املأ الفراغات</span>
+                )}
+              </div>
             </div>
 
             <QuestionRenderer
@@ -1045,7 +1121,7 @@ const loadDomains = async () => {
     );
   }
   
-  // Results Screen (reste identique)
+  // Results Screen - Ajouter aussi le logo AVSPC
   if (currentScreen === 'results') {
     let correctAnswers = 0;
     let totalPossiblePoints = 0;
@@ -1087,6 +1163,18 @@ const loadDomains = async () => {
 
     return (
       <div className="results-container">
+        {/* Ajout du logo AVSPC dans l'en-tête des résultats */}
+        <div className="results-logo-header">
+          <img 
+            src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+            alt="AVSPC Ben Arous"
+            style={{ width: '40px', height: '40px', marginBottom: '16px' }}
+          />
+          <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '20px' }}>
+            © جميع الحقوق محفوظة للجمعية التونسية لمتطوعي الحماية المدنية ببن عروس
+          </p>
+        </div>
+
         <div className="results-card">
           <div className="card results-animation">
             <div className="results-header">
