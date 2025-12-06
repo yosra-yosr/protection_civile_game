@@ -1020,29 +1020,29 @@ const ProtectionCivileQuizGame = () => {
           </div>
 
           <div className="question-card-optimized">
-  {/* En-tête de question avec logo dans l'autre coin */}
-  <div className="question-header-compact">
-    <div className="question-header-top">
-      <span className="question-badge-compact">
-        السؤال {currentQuestionIndex + 1}
-        {isQuestionAnswered && <span className="answered-indicator">✓</span>}
-      </span>
-      {/* Logo dans l'autre coin */}
-      <img 
-        src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
-        alt="AVSPC Ben Arous"
-        className="question-logo"
-      />
-    </div>
-    <div className="question-header-bottom">
-      {question.image && (
-        <span className="image-indicator">📷</span>
-      )}
-      {question.type === 'fill-in-blanks' && (
-        <span className="question-type-indicator">📝 املأ الفراغات</span>
-      )}
-    </div>
-  </div>
+              {/* En-tête de question avec logo dans l'autre coin */}
+              <div className="question-header-compact">
+                <div className="question-header-top">
+                  <span className="question-badge-compact">
+                    السؤال {currentQuestionIndex + 1}
+                    {isQuestionAnswered && <span className="answered-indicator">✓</span>}
+                  </span>
+                  {/* Logo dans l'autre coin */}
+                  <img 
+                    src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                    alt="AVSPC Ben Arous"
+                    className="question-logo"
+                  />
+                </div>
+                <div className="question-header-bottom">
+                  {question.image && (
+                    <span className="image-indicator">📷</span>
+                  )}
+                  {question.type === 'fill-in-blanks' && (
+                    <span className="question-type-indicator">📝 املأ الفراغات</span>
+                  )}
+                </div>
+              </div>
 
             <QuestionRenderer
               question={question}
