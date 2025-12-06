@@ -4136,54 +4136,104 @@ img {
     margin-top: 4px;
   }
 }
-/* Styles pour les logos dans l'autre extrémité */
+/* Styles pour les domaines - Logo sur même ligne */
 .domain-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  position: relative;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 16px;
 }
 
-.domain-logo-container {
-  position: absolute;
-  left: 16px; /* Pour RTL - positionné à gauche */
-  top: 16px;
+.domain-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
 }
 
-.domain-logo {
-  width: 32px;
-  height: 32px;
-  opacity: 0.8;
+.domain-icon {
+  font-size: 2rem;
+  min-width: 48px;
+  text-align: center;
 }
 
 .domain-text-container {
   flex: 1;
-  margin-right: 48px; /* Espace pour le logo */
+}
+
+.domain-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.domain-description {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.domain-header-logo {
+  margin-left: 24px; /* Pour RTL - espace à gauche */
+}
+
+.domain-logo-opposite {
+  width: 48px;
+  height: 48px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.domain-logo-opposite:hover {
+  opacity: 1;
 }
 
 /* Styles pour les cartes de catégorie */
 .category-card {
   position: relative;
-  min-height: 120px;
+  min-height: 140px;
+  padding: 20px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
 }
 
-.category-card-content {
-  flex: 1;
-  padding: 16px;
+.category-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.category-card-logo {
-  position: absolute;
-  left: 12px; /* Pour RTL - positionné en bas à gauche */
-  bottom: 12px;
+.category-icon {
+  font-size: 1.8rem;
+  margin-left: 12px; /* Pour RTL - espace à droite de l'icône */
 }
 
-.category-logo {
-  width: 24px;
-  height: 24px;
-  opacity: 0.6;
+.category-logo-inline {
+  width: 36px;
+  height: 36px;
+  opacity: 0.7;
+  margin-right: auto; /* Pousse le logo vers la gauche */
+}
+
+.category-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  text-align: right; /* Pour RTL */
+}
+
+.category-description {
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: right; /* Pour RTL */
 }
 
 /* Styles pour l'en-tête de question */
@@ -4192,13 +4242,62 @@ img {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.question-logo {
-  width: 28px;
-  height: 28px;
-  opacity: 0.7;
+.question-number-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.question-badge-compact {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.answered-indicator {
+  background: #10b981;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.image-indicator {
+  background: #f59e0b;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.question-type-indicator {
+  background: #8b5cf6;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.question-logo-section {
+  margin-left: 16px; /* Pour RTL - espace à gauche */
+}
+
+.question-logo-inline {
+  width: 42px;
+  height: 42px;
+  opacity: 0.75;
 }
 
 /* Styles pour les résultats */
@@ -4206,81 +4305,113 @@ img {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding: 0 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
 }
 
 .results-copyright {
-  text-align: left; /* Pour RTL */
-  font-size: 0.8rem;
-  color: #666;
+  text-align: right; /* Pour RTL */
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
   flex: 1;
+  margin-left: 24px; /* Pour RTL - espace à droite */
 }
 
-.results-logo {
-  width: 36px;
-  height: 36px;
+.results-logo-large {
+  width: 56px;
+  height: 56px;
+  opacity: 0.8;
 }
 
 /* Ajustements responsive */
 @media (max-width: 768px) {
-  .domain-logo-container {
-    left: 12px;
-    top: 12px;
+  .domain-header {
+    padding: 12px;
   }
   
-  .domain-logo {
-    width: 28px;
-    height: 28px;
+  .domain-icon {
+    font-size: 1.6rem;
+    min-width: 40px;
   }
   
-  .domain-text-container {
-    margin-right: 40px;
+  .domain-logo-opposite {
+    width: 40px;
+    height: 40px;
   }
   
-  .category-card-logo {
-    left: 8px;
-    bottom: 8px;
+  .category-card-header {
+    margin-bottom: 8px;
   }
   
-  .category-logo {
-    width: 20px;
-    height: 20px;
+  .category-icon {
+    font-size: 1.5rem;
   }
   
-  .question-logo {
-    width: 24px;
-    height: 24px;
+  .category-logo-inline {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .question-logo-inline {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .results-logo-large {
+    width: 48px;
+    height: 48px;
   }
 }
 
 @media (max-width: 480px) {
-  .domain-logo-container {
-    position: relative;
-    left: 0;
-    top: 0;
-    margin-top: 8px;
-    width: 100%;
-    text-align: left; /* Pour RTL */
-  }
-  
-  .domain-text-container {
-    margin-right: 0;
-  }
-  
   .domain-header {
-    flex-direction: column;
+    flex-direction: row; /* Garder en ligne sur mobile aussi */
+    align-items: center;
   }
   
-  .category-card-logo {
-    position: relative;
-    left: 0;
-    bottom: 0;
-    margin-top: 8px;
-    padding-left: 16px; /* Pour RTL */
+  .domain-info {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .domain-icon {
+    font-size: 1.4rem;
+    min-width: 36px;
+  }
+  
+  .domain-logo-opposite {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .domain-title {
+    font-size: 1.2rem;
   }
   
   .question-header-top {
-    flex-direction: row; /* Garder en ligne même sur mobile */
+    flex-direction: row; /* Garder en ligne */
+    align-items: center;
+  }
+  
+  .question-number-section {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .question-logo-inline {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .results-logo-header {
+    flex-direction: row; /* Garder en ligne */
+    align-items: center;
+  }
+  
+  .results-logo-large {
+    width: 42px;
+    height: 42px;
   }
 }

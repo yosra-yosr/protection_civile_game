@@ -847,12 +847,12 @@ const ProtectionCivileQuizGame = () => {
                   </div>
                 </div>
                 
-                {/* Logo AVSPC à l'extrémité opposée */}
-                <div className="domain-logo-container">
+                {/* Logo AVSPC sur la même ligne, à l'extrémité opposée */}
+                <div className="domain-header-logo">
                   <img 
                     src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
                     alt="AVSPC Ben Arous"
-                    className="domain-logo"
+                    className="domain-logo-opposite"
                   />
                 </div>
                 
@@ -881,40 +881,35 @@ const ProtectionCivileQuizGame = () => {
                           cursor: isCategoryActive ? 'pointer' : 'not-allowed'
                         }}
                       >
-                        <div className="category-card-content">
-                          <div className="category-header">
-                            <span className="category-icon">{categoryData.icon}</span>
-                            {categoryProgress?.completed && isCategoryActive && (
-                              <span className="completed-badge">✓</span>
-                            )}
-                            {!isCategoryActive && (
-                              <span className="lock-icon-small">🔒</span>
-                            )}
-                          </div>
-                          
-                          <h4 className="category-title">{categoryName}</h4>
-                          <p className="category-description">
-                            {isCategoryActive ? (
-                              <>
-                                {categoryData.questions?.length || 0} سؤال
-                                {categoryProgress && (
-                                  <span className="category-score"> • {categoryProgress.percentage}%</span>
-                                )}
-                              </>
-                            ) : (
-                              'غير متاح'
-                            )}
-                          </p>
-                        </div>
-                        
-                        {/* Logo dans l'autre coin de la carte de catégorie */}
-                        <div className="category-card-logo">
+                        <div className="category-card-header">
+                          <span className="category-icon">{categoryData.icon}</span>
+                          {/* Logo AVSPC sur la même ligne que l'icône, à gauche */}
                           <img 
                             src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
                             alt="AVSPC Ben Arous"
-                            className="category-logo"
+                            className="category-logo-inline"
                           />
+                          {categoryProgress?.completed && isCategoryActive && (
+                            <span className="completed-badge">✓</span>
+                          )}
+                          {!isCategoryActive && (
+                            <span className="lock-icon-small">🔒</span>
+                          )}
                         </div>
+                        
+                        <h4 className="category-title">{categoryName}</h4>
+                        <p className="category-description">
+                          {isCategoryActive ? (
+                            <>
+                              {categoryData.questions?.length || 0} سؤال
+                              {categoryProgress && (
+                                <span className="category-score"> • {categoryProgress.percentage}%</span>
+                              )}
+                            </>
+                          ) : (
+                            'غير متاح'
+                          )}
+                        </p>
                       </div>
                     );
                   })}
@@ -1020,28 +1015,31 @@ const ProtectionCivileQuizGame = () => {
           </div>
 
           <div className="question-card-optimized">
-              {/* En-tête de question avec logo dans l'autre coin */}
-              <div className="question-header-compact">
-                <div className="question-header-top">
-                  <span className="question-badge-compact">
-                    السؤال {currentQuestionIndex + 1}
-                    {isQuestionAnswered && <span className="answered-indicator">✓</span>}
-                  </span>
-                  {/* Logo dans l'autre coin */}
-                  <img 
-                    src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
-                    alt="AVSPC Ben Arous"
-                    className="question-logo"
-                  />
-                </div>
-                <div className="question-header-bottom">
-                  {question.image && (
-                    <span className="image-indicator">📷</span>
-                  )}
-                  {question.type === 'fill-in-blanks' && (
-                    <span className="question-type-indicator">📝 املأ الفراغات</span>
-                  )}
-                </div>
+  {/* En-tête de question avec logo sur la même ligne */}
+  <div className="question-header-compact">
+    <div className="question-header-top">
+      <div className="question-number-section">
+        <span className="question-badge-compact">
+          السؤال {currentQuestionIndex + 1}
+          {isQuestionAnswered && <span className="answered-indicator">✓</span>}
+        </span>
+        {question.image && (
+          <span className="image-indicator">📷</span>
+        )}
+        {question.type === 'fill-in-blanks' && (
+          <span className="question-type-indicator">📝 املأ الفراغات</span>
+        )}
+      </div>
+      
+      {/* Logo sur la même ligne, à l'extrémité opposée */}
+      <div className="question-logo-section">
+        <img 
+          src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+          alt="AVSPC Ben Arous"
+          className="question-logo-inline"
+        />
+      </div>
+      </div>
               </div>
 
             <QuestionRenderer
