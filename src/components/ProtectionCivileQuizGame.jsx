@@ -807,7 +807,7 @@ const ProtectionCivileQuizGame = () => {
             </div>
           )}
 
-          // Home Screen - Modification pour les cartes de domaine
+           {/* Home Screen - Modification pour les cartes de domaine */}
 {playerName && (
   <>
     <div className="welcome-card">
