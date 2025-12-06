@@ -807,130 +807,139 @@ const ProtectionCivileQuizGame = () => {
             </div>
           )}
 
-          {playerName && (
-            <>
-              <div className="welcome-card">
-                <p className="welcome-text">
-                  مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
-                </p>
-                <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
-              </div>
+          // Home Screen - Modification pour les cartes de domaine
+{playerName && (
+  <>
+    <div className="welcome-card">
+      <p className="welcome-text">
+        مرحبا أيها المتطوع <span className="welcome-name">{playerName}</span> 👩‍🚒
+      </p>
+      <p className="welcome-subtitle">اختر فئة الأسئلة لتبدأ التحدي</p>
+    </div>
 
-              <div className="domains-container">
-                {Object.entries(domains)
-                  .sort(([,a], [,b]) => a.order - b.order)
-                  .map(([domainKey, domainData]) => {
-                    // Utiliser is_active de l'API au lieu de la logique locale
-                    const isUnlocked = domainData.isActive;
-                    const progress = playerProgress.getDomainProgress(domainKey, playerProgressData);
+    <div className="domains-container">
+      {Object.entries(domains)
+        .sort(([,a], [,b]) => a.order - b.order)
+        .map(([domainKey, domainData]) => {
+          const isUnlocked = domainData.isActive;
+          const progress = playerProgress.getDomainProgress(domainKey, playerProgressData);
+          
+          return (
+            <div key={domainKey} className="domain-section">
+              <div className={`domain-header ${!isUnlocked ? 'locked' : ''}`}>
+                <div className="domain-info">
+                  <span className="domain-icon">{domainData.icon}</span>
+                  <div className="domain-text-container">
+                    <h3 className="domain-title">
+                      {domainKey}
+                    </h3>
+                    <p className="domain-description">{domainData.description}</p>
+                    {progress.total > 0 && isUnlocked && (
+                      <div className="domain-progress">
+                        التقدم: {progress.completed}/{progress.total} ({progress.percentage}%)
+                      </div>
+                    )}
+                    {!isUnlocked && (
+                      <p className="domain-locked-message">
+                        هذا المجال غير متاح حاليا
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Logo AVSPC à l'extrémité opposée */}
+                <div className="domain-logo-container">
+                  <img 
+                    src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                    alt="AVSPC Ben Arous"
+                    className="domain-logo"
+                  />
+                </div>
+                
+                {!isUnlocked && <span className="lock-icon">🔒</span>}
+              </div>
+              
+              {isUnlocked && (
+                <div className={`categories-grid ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
+                  {Object.entries(domainData.categories).map(([categoryName, categoryData]) => {
+                    const categoryProgress = playerProgressData.domains?.[domainKey]?.[categoryName];
+                    const categoryId = categoryData._meta?.id || categoryData.id;
+                    const isCategoryActive = categoryData._meta?.isActive !== false;
                     
                     return (
-                      <div key={domainKey} className="domain-section">
-                        <div className={`domain-header ${!isUnlocked ? 'locked' : ''}`}>
-                          <div className="domain-info">
-                            <span className="domain-icon">{domainData.icon}</span>
-                            <div>
-                              <h3 className="domain-title">
-                                {domainKey}
-                                {/* Ajout du logo AVSPC à côté du nom de domaine */}
-                                <img 
-                                  src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
-                                  alt="AVSPC Ben Arous"
-                                  style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    marginRight: '8px',
-                                    verticalAlign: 'middle',
-                                    display: 'inline-block'
-                                  }}
-                                />
-                              </h3>
-                              <p className="domain-description">{domainData.description}</p>
-                              {progress.total > 0 && isUnlocked && (
-                                <div className="domain-progress">
-                                  التقدم: {progress.completed}/{progress.total} ({progress.percentage}%)
-                                </div>
-                              )}
-                              {!isUnlocked && (
-                                <p className="domain-locked-message">
-                                  هذا المجال غير متاح حاليا
-                                </p>
-                              )}
-                            </div>
+                      <div
+                        key={categoryName}
+                        onClick={() => {
+                          if (isCategoryActive) {
+                            startGame(domainKey, categoryName, categoryId);
+                          }
+                        }}
+                        className={`category-card smooth-transition hover-glow ${!isCategoryActive ? 'category-disabled' : ''}`}
+                        style={{
+                          background: categoryData.gradient,
+                          opacity: isCategoryActive ? 1 : 0.6,
+                          cursor: isCategoryActive ? 'pointer' : 'not-allowed'
+                        }}
+                      >
+                        <div className="category-card-content">
+                          <div className="category-header">
+                            <span className="category-icon">{categoryData.icon}</span>
+                            {categoryProgress?.completed && isCategoryActive && (
+                              <span className="completed-badge">✓</span>
+                            )}
+                            {!isCategoryActive && (
+                              <span className="lock-icon-small">🔒</span>
+                            )}
                           </div>
-                          {!isUnlocked && <span className="lock-icon">🔒</span>}
+                          
+                          <h4 className="category-title">{categoryName}</h4>
+                          <p className="category-description">
+                            {isCategoryActive ? (
+                              <>
+                                {categoryData.questions?.length || 0} سؤال
+                                {categoryProgress && (
+                                  <span className="category-score"> • {categoryProgress.percentage}%</span>
+                                )}
+                              </>
+                            ) : (
+                              'غير متاح'
+                            )}
+                          </p>
                         </div>
                         
-                        {isUnlocked && (
-                          <div className={`categories-grid ${isSmallMobile ? 'mobile-single' : isMobile ? 'mobile-double' : ''}`}>
-                            {Object.entries(domainData.categories).map(([categoryName, categoryData]) => {
-                              const categoryProgress = playerProgressData.domains?.[domainKey]?.[categoryName];
-                              const categoryId = categoryData._meta?.id || categoryData.id;
-                              const isCategoryActive = categoryData._meta?.isActive !== false; // Par défaut true si non défini
-                              
-                              return (
-                                <div
-                                  key={categoryName}
-                                  onClick={() => {
-                                    if (isCategoryActive) {
-                                      startGame(domainKey, categoryName, categoryId);
-                                    }
-                                  }}
-                                  className={`category-card smooth-transition hover-glow ${!isCategoryActive ? 'category-disabled' : ''}`}
-                                  style={{
-                                    background: categoryData.gradient,
-                                    opacity: isCategoryActive ? 1 : 0.6,
-                                    cursor: isCategoryActive ? 'pointer' : 'not-allowed'
-                                  }}
-                                >
-                                  <div className="category-header">
-                                    <span className="category-icon">{categoryData.icon}</span>
-                                    {categoryProgress?.completed && isCategoryActive && (
-                                      <span className="completed-badge">✓</span>
-                                    )}
-                                    {!isCategoryActive && (
-                                      <span className="lock-icon-small">🔒</span>
-                                    )}
-                                  </div>
-                                  
-                                  <h4 className="category-title">{categoryName}</h4>
-                                  <p className="category-description">
-                                    {isCategoryActive ? (
-                                      <>
-                                        {categoryData.questions?.length || 0} سؤال
-                                        {categoryProgress && (
-                                          <span className="category-score"> • {categoryProgress.percentage}%</span>
-                                        )}
-                                      </>
-                                    ) : (
-                                      'غير متاح'
-                                    )}
-                                  </p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                        {/* Logo dans l'autre coin de la carte de catégorie */}
+                        <div className="category-card-logo">
+                          <img 
+                            src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+                            alt="AVSPC Ben Arous"
+                            className="category-logo"
+                          />
+                        </div>
                       </div>
                     );
                   })}
-              </div>
-
-              {badges.length > 0 && (
-                <div className="badges-container">
-                  <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
-                  
-                  <div className="badges-list">
-                    {badges.map((badge, index) => (
-                      <div key={index} className="badge-item smooth-transition">
-                        <span className="badge-text">⭐ {badge}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
-            </>
-          )}
+            </div>
+          );
+        })}
+    </div>
+
+    {badges.length > 0 && (
+      <div className="badges-container">
+        <h3 className="badges-title">🏆 الأوسمة المكتسبة</h3>
+        
+        <div className="badges-list">
+          {badges.map((badge, index) => (
+            <div key={index} className="badge-item smooth-transition">
+              <span className="badge-text">⭐ {badge}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>
+)}
         </div>
       </div>
     );
@@ -1011,32 +1020,29 @@ const ProtectionCivileQuizGame = () => {
           </div>
 
           <div className="question-card-optimized">
-            {/* Ajout du logo AVSPC dans l'en-tête de la question */}
-            <div className="question-header-compact">
-              <div className="question-header-top">
-                <span className="question-badge-compact">
-                  السؤال {currentQuestionIndex + 1}
-                  {isQuestionAnswered && <span className="answered-indicator">✓</span>}
-                </span>
-                <img 
-                  src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
-                  alt="AVSPC Ben Arous"
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    opacity: 0.7
-                  }}
-                />
-              </div>
-              <div className="question-header-bottom">
-                {question.image && (
-                  <span className="image-indicator">📷</span>
-                )}
-                {question.type === 'fill-in-blanks' && (
-                  <span className="question-type-indicator">📝 املأ الفراغات</span>
-                )}
-              </div>
-            </div>
+  {/* En-tête de question avec logo dans l'autre coin */}
+  <div className="question-header-compact">
+    <div className="question-header-top">
+      <span className="question-badge-compact">
+        السؤال {currentQuestionIndex + 1}
+        {isQuestionAnswered && <span className="answered-indicator">✓</span>}
+      </span>
+      {/* Logo dans l'autre coin */}
+      <img 
+        src={`${process.env.PUBLIC_URL}/LogoAVSPCBenArous.png`}
+        alt="AVSPC Ben Arous"
+        className="question-logo"
+      />
+    </div>
+    <div className="question-header-bottom">
+      {question.image && (
+        <span className="image-indicator">📷</span>
+      )}
+      {question.type === 'fill-in-blanks' && (
+        <span className="question-type-indicator">📝 املأ الفراغات</span>
+      )}
+    </div>
+  </div>
 
             <QuestionRenderer
               question={question}

@@ -4136,3 +4136,151 @@ img {
     margin-top: 4px;
   }
 }
+/* Styles pour les logos dans l'autre extrémité */
+.domain-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.domain-logo-container {
+  position: absolute;
+  left: 16px; /* Pour RTL - positionné à gauche */
+  top: 16px;
+}
+
+.domain-logo {
+  width: 32px;
+  height: 32px;
+  opacity: 0.8;
+}
+
+.domain-text-container {
+  flex: 1;
+  margin-right: 48px; /* Espace pour le logo */
+}
+
+/* Styles pour les cartes de catégorie */
+.category-card {
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-card-content {
+  flex: 1;
+  padding: 16px;
+}
+
+.category-card-logo {
+  position: absolute;
+  left: 12px; /* Pour RTL - positionné en bas à gauche */
+  bottom: 12px;
+}
+
+.category-logo {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+}
+
+/* Styles pour l'en-tête de question */
+.question-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.question-logo {
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+}
+
+/* Styles pour les résultats */
+.results-logo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 16px;
+}
+
+.results-copyright {
+  text-align: left; /* Pour RTL */
+  font-size: 0.8rem;
+  color: #666;
+  flex: 1;
+}
+
+.results-logo {
+  width: 36px;
+  height: 36px;
+}
+
+/* Ajustements responsive */
+@media (max-width: 768px) {
+  .domain-logo-container {
+    left: 12px;
+    top: 12px;
+  }
+  
+  .domain-logo {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .domain-text-container {
+    margin-right: 40px;
+  }
+  
+  .category-card-logo {
+    left: 8px;
+    bottom: 8px;
+  }
+  
+  .category-logo {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .question-logo {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .domain-logo-container {
+    position: relative;
+    left: 0;
+    top: 0;
+    margin-top: 8px;
+    width: 100%;
+    text-align: left; /* Pour RTL */
+  }
+  
+  .domain-text-container {
+    margin-right: 0;
+  }
+  
+  .domain-header {
+    flex-direction: column;
+  }
+  
+  .category-card-logo {
+    position: relative;
+    left: 0;
+    bottom: 0;
+    margin-top: 8px;
+    padding-left: 16px; /* Pour RTL */
+  }
+  
+  .question-header-top {
+    flex-direction: row; /* Garder en ligne même sur mobile */
+  }
+}
